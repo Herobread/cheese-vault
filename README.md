@@ -1,0 +1,1 @@
+Simple telegram bot that will be hosted on mini pc to explore CI/CD pipelines and to have some fun.
