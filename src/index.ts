@@ -1,20 +1,15 @@
 import "dotenv/config"
-import TelegramBot from "node-telegram-bot-api"
+import { Telegraf } from "telegraf"
 
 const token = process.env.TELEGRAM_API_KEY || ""
 
-console.log(token)
+const bot = new Telegraf(token)
 
-const bot = new TelegramBot(token, { polling: true })
+bot.command("echo", async (ctx) => {
+    ctx.sendMessage(ctx.message.text)
+})
 
-bot.onText(
-    /\/echo (.+)/,
-    (msg: TelegramBot.Message, match: RegExpExecArray | null) => {
-        if (!match) return
+bot.launch()
 
-        const chatId = msg.chat.id
-        const resp = match[1]
-
-        bot.sendMessage(chatId, resp)
-    }
-)
+process.once("SIGINT", () => bot.stop("SIGINT"))
+process.once("SIGTERM", () => bot.stop("SIGTERM"))
