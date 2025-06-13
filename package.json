@@ -5,7 +5,8 @@
     "scripts": {
         "start": "node dist/index.js",
         "build": "tsc",
-        "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts"
+        "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
+        "studio": "npx drizzle-kit studio"
     },
     "keywords": [],
     "author": "",

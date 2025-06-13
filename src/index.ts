@@ -36,6 +36,12 @@ bot.command("all", async (ctx) => {
     ctx.sendMessage(JSON.stringify(all))
 })
 
+bot.command("dump", async (ctx) => {
+    console.log(ctx)
+    console.log(ctx.update.message.chat)
+    console.log(ctx.update.message.from)
+})
+
 bot.launch()
 
 console.log("Bot active")
