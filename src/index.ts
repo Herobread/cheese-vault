@@ -1,5 +1,7 @@
 import "dotenv/config"
+import { eq } from "drizzle-orm"
 import { Telegraf } from "telegraf"
+import { addItem } from "./commands/addItem"
 import { db } from "./db/connection"
 import { shoppingTable } from "./db/schema"
 
@@ -7,18 +9,15 @@ const token = process.env.TELEGRAM_API_KEY || ""
 
 const bot = new Telegraf(token)
 
-bot.command("echo", async (ctx) => {
-    ctx.sendMessage(ctx.message.text)
-})
+bot.command("add", addItem)
 
-bot.command("db", async (ctx) => {
-    await db.insert(shoppingTable).values({ name: ctx.message.text })
+bot.command("list", async (ctx) => {
+    const chatId = ctx.update.message.chat.id
 
-    ctx.sendMessage("DB")
-})
-
-bot.command("get", async (ctx) => {
-    const items = await db.select().from(shoppingTable)
+    const items = await db
+        .select()
+        .from(shoppingTable)
+        .where(eq(shoppingTable.chat_id, chatId))
 
     let listMessage = "Shopping list\n\n"
 
@@ -29,6 +28,12 @@ bot.command("get", async (ctx) => {
         .join("\n")
 
     ctx.sendMessage(listMessage)
+})
+
+bot.command("all", async (ctx) => {
+    const all = await db.select().from(shoppingTable)
+
+    ctx.sendMessage(JSON.stringify(all))
 })
 
 bot.launch()
