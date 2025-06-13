@@ -18,7 +18,9 @@ export async function listItems(ctx: Context) {
 
     let listMessage = "Shopping list\n\n"
 
-    listMessage += items.map((item) => item.name).join("\n")
+    items.forEach((item) => {
+        listMessage += `- ${item.name}\n`
+    })
 
     ctx.sendMessage(listMessage)
 }
