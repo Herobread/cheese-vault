@@ -1,2 +1,2 @@
-npx drizzle-kit migrate
-npx drizzle-kit generate
+bunx drizzle-kit migrate
+bunx drizzle-kit generate
