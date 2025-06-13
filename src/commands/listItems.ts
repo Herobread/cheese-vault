@@ -1,10 +1,21 @@
 import { eq } from "drizzle-orm"
 import { Context } from "telegraf"
 import { db } from "../db/connection"
-import { shoppingTable } from "../db/schema"
+import { ShoppingItem, shoppingTable } from "../db/schema"
 
 export async function listItems(ctx: Context) {
     const chatId = ctx.message?.chat.id
+    const { args } = ctx as any
+
+    let isBlame = false
+
+    if (
+        args &&
+        args.length > 0 &&
+        args[0]?.toString().toLowerCase() === "blame"
+    ) {
+        isBlame = true
+    }
 
     if (!chatId) {
         await ctx.reply("🔴 Error. Could not determine chat ID.")
@@ -19,8 +30,26 @@ export async function listItems(ctx: Context) {
     let listMessage = "Shopping list\n\n"
 
     items.forEach((item) => {
-        listMessage += `- ${item.name}\n`
+        listMessage += `- ${item.name}`
+
+        if (isBlame) {
+            listMessage += ` [${generateUserName(item)}]\n`
+        }
+
+        listMessage += "\n"
     })
 
     ctx.sendMessage(listMessage)
+}
+
+function generateUserName(item: ShoppingItem) {
+    if (item.user_username) {
+        return `${item.user_username}`
+    }
+
+    if (item.user_last_name) {
+        return `${item.user_first_name} ${item.user_last_name}`
+    }
+
+    return `${item.user_first_name}`
 }
