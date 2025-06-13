@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm"
+import { and, eq } from "drizzle-orm"
 import { Context } from "telegraf"
 import { db } from "../db/connection"
 import { ShoppingItem, shoppingTable } from "../db/schema"
@@ -25,9 +25,18 @@ export async function listItems(ctx: Context) {
     const items = await db
         .select()
         .from(shoppingTable)
-        .where(eq(shoppingTable.chat_id, chatId))
+        .where(
+            and(
+                eq(shoppingTable.chat_id, chatId),
+                eq(shoppingTable.isComplete, false)
+            )
+        )
 
-    let listMessage = "Shopping list\n\n"
+    let listMessage = "🗒 Shopping list\n\n"
+
+    if (items.length === 0) {
+        listMessage += "\n<empty>"
+    }
 
     items.forEach((item) => {
         listMessage += `- ${item.name}`

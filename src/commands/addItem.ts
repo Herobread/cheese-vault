@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm"
+import { and, eq, sql } from "drizzle-orm"
 import { Context } from "telegraf"
 import { db } from "../db/connection"
 import { shoppingTable } from "../db/schema"
@@ -37,7 +37,12 @@ export async function addItem(ctx: Context) {
     const countResult = await db
         .select({ count: sql<number>`count(*)` })
         .from(shoppingTable)
-        .where(eq(shoppingTable.chat_id, chat.id))
+        .where(
+            and(
+                eq(shoppingTable.chat_id, chat.id),
+                eq(shoppingTable.isComplete, false)
+            )
+        )
     const totalItemCount = countResult[0]?.count ?? 0
 
     await ctx.telegram.editMessageText(

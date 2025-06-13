@@ -1,6 +1,7 @@
 import "dotenv/config"
 import { Telegraf } from "telegraf"
 import { addItem } from "./commands/addItem"
+import { clearItems } from "./commands/clearItems"
 import { listItems } from "./commands/listItems"
 import { db } from "./db/connection"
 import { shoppingTable } from "./db/schema"
@@ -11,6 +12,7 @@ const bot = new Telegraf(token)
 
 bot.command("add", addItem)
 bot.command("list", listItems)
+bot.command("clear", clearItems)
 
 bot.command("all", async (ctx) => {
     const all = await db.select().from(shoppingTable)

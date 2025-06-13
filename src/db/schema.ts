@@ -1,3 +1,4 @@
+import { InferSelectModel } from "drizzle-orm"
 import { int, sqliteTable, text } from "drizzle-orm/sqlite-core"
 
 export const shoppingTable = sqliteTable("shopping", {
@@ -9,4 +10,7 @@ export const shoppingTable = sqliteTable("shopping", {
     user_last_name: text(),
     user_username: text(),
     date: int().notNull(),
+    isComplete: int({ mode: "boolean" }).notNull().default(false),
 })
+
+export type ShoppingItem = InferSelectModel<typeof shoppingTable>
