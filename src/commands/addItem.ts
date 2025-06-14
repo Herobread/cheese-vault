@@ -14,6 +14,23 @@ export async function addItem(ctx: Context, args: string[]) {
         return
     }
 
+    const chat = ctx.chat
+    const from = ctx.from
+    const date = ctx.message?.date || Math.floor(Date.now() / 1000)
+
+    if (!chat?.id || !from?.id || !from?.first_name) {
+        await ctx.reply("🔴 Missing chat or user information.")
+        return
+    }
+
+    const pinnedMessage = await db
+        .select()
+        .from(pinnedListMessages)
+        .where(eq(pinnedListMessages.chat_id, chat.id))
+    const pinnedMessageId = pinnedMessage[0]?.message_id
+
+    const isPinnedMessage = !!pinnedMessageId
+
     const itemName = args.join(" ")
 
     const items = itemName
@@ -22,15 +39,10 @@ export async function addItem(ctx: Context, args: string[]) {
         .filter((item) => item !== "")
         .map((item) => capitalizeFirstLetter(item))
 
-    const listMessage = await ctx.reply(`🟡 Adding ${items.join(", ")}...`)
+    let listMessage
 
-    const chat = ctx.chat
-    const from = ctx.from
-    const date = ctx.message?.date || Math.floor(Date.now() / 1000)
-
-    if (!chat?.id || !from?.id || !from?.first_name) {
-        await ctx.reply("🔴 Missing chat or user information.")
-        return
+    if (!isPinnedMessage) {
+        listMessage = await ctx.reply(`🟡 Adding ${items.join(", ")}...`)
     }
 
     items.forEach(async (item) => {
@@ -56,23 +68,20 @@ export async function addItem(ctx: Context, args: string[]) {
         )
     const totalItemCount = tempItemsCount[0]?.count ?? 0
 
-    const pinnedMessage = await db
-        .select()
-        .from(pinnedListMessages)
-        .where(eq(pinnedListMessages.chat_id, chat.id))
-    const pinnedMessageId = pinnedMessage[0]?.message_id
-
-    await updateListMessageContent(ctx, chat.id, pinnedMessageId)
-
-    await ctx.telegram.editMessageText(
-        listMessage.chat.id,
-        listMessage.message_id,
-        undefined,
-        `🟢 Added *${itemName}*, (${totalItemCount} items total).`,
-        {
-            parse_mode: "Markdown",
-        }
-    )
+    if (listMessage) {
+        await ctx.telegram.editMessageText(
+            listMessage.chat.id,
+            listMessage.message_id,
+            undefined,
+            `🟢 Added *${itemName}*, (${totalItemCount} items total).`,
+            {
+                parse_mode: "Markdown",
+            }
+        )
+    } else {
+        await updateListMessageContent(ctx, chat.id, pinnedMessageId)
+        await ctx.react("👌")
+    }
 }
 
 export async function parseArgsAndAddItem(ctx: Context) {
