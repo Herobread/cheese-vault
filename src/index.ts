@@ -21,7 +21,6 @@ bot.command("add", parseArgsAndAddItem)
 bot.command("list", listItems)
 bot.command("clear", clearItems)
 
-// on reply to list message, do smth
 bot.on(message("text"), async (ctx) => {
     const chatId = ctx.message.chat.id
     const messageId = ctx.message.message_id

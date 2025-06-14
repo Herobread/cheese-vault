@@ -4,7 +4,10 @@ import { db } from "../db/connection"
 import { pinnedListMessages, shoppingTable } from "../db/schema"
 import { updateListMessageContent } from "./listItems"
 
-// Reusable function to add an item
+function capitalizeFirstLetter(text: string): string {
+    return text.charAt(0).toUpperCase() + text.slice(1)
+}
+
 export async function addItem(ctx: Context, args: string[]) {
     if (!args || args.length === 0) {
         await ctx.reply(`🔴 Please provide the name of the item to add.`)
@@ -13,7 +16,13 @@ export async function addItem(ctx: Context, args: string[]) {
 
     const itemName = args.join(" ")
 
-    const listMessage = await ctx.reply(`🟡 Adding ${itemName}...`)
+    const items = itemName
+        .split(",")
+        .map((item) => item.trim())
+        .filter((item) => item !== "")
+        .map((item) => capitalizeFirstLetter(item))
+
+    const listMessage = await ctx.reply(`🟡 Adding ${items.join(", ")}...`)
 
     const chat = ctx.chat
     const from = ctx.from
@@ -24,17 +33,19 @@ export async function addItem(ctx: Context, args: string[]) {
         return
     }
 
-    await db.insert(shoppingTable).values({
-        name: itemName,
-        chat_id: chat.id,
-        user_id: from.id,
-        user_first_name: from.first_name,
-        user_last_name: from.last_name ?? null,
-        user_username: from.username ?? null,
-        date: date,
+    items.forEach(async (item) => {
+        await db.insert(shoppingTable).values({
+            name: item,
+            chat_id: chat.id,
+            user_id: from.id,
+            user_first_name: from.first_name,
+            user_last_name: from.last_name ?? null,
+            user_username: from.username ?? null,
+            date: date,
+        })
     })
 
-    const incompleteItemsCount = await db
+    const tempItemsCount = await db
         .select({ count: sql<number>`count(*)` })
         .from(shoppingTable)
         .where(
@@ -43,7 +54,7 @@ export async function addItem(ctx: Context, args: string[]) {
                 eq(shoppingTable.isComplete, false)
             )
         )
-    const totalItemCount = incompleteItemsCount[0]?.count ?? 0
+    const totalItemCount = tempItemsCount[0]?.count ?? 0
 
     const pinnedMessage = await db
         .select()
@@ -64,10 +75,8 @@ export async function addItem(ctx: Context, args: string[]) {
     )
 }
 
-// Command handler for /add
 export async function parseArgsAndAddItem(ctx: Context) {
     const { args } = ctx as any
 
-    // Pass the parsed args to the reusable logic
     await addItem(ctx, args)
 }

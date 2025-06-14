@@ -22,7 +22,6 @@ export async function listItems(ctx: Context) {
         return
     }
 
-    // Check if a message is already pinned
     const pinnedMessage = await db
         .select()
         .from(pinnedListMessages)
