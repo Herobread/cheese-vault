@@ -1,13 +1,13 @@
 import { and, eq, sql } from "drizzle-orm"
 import { Context } from "telegraf"
 import { db } from "../db/connection"
-import { shoppingTable } from "../db/schema"
+import { pinnedListMessages, shoppingTable } from "../db/schema"
+import { updateListMessageContent } from "./listItems"
 
-export async function addItem(ctx: Context) {
-    const { args } = ctx as any
-
+// Reusable function to add an item
+export async function addItem(ctx: Context, args: string[]) {
     if (!args || args.length === 0) {
-        await ctx.reply(`🔴 Please provide name of the item to add.`)
+        await ctx.reply(`🔴 Please provide the name of the item to add.`)
         return
     }
 
@@ -34,7 +34,7 @@ export async function addItem(ctx: Context) {
         date: date,
     })
 
-    const countResult = await db
+    const incompleteItemsCount = await db
         .select({ count: sql<number>`count(*)` })
         .from(shoppingTable)
         .where(
@@ -43,7 +43,15 @@ export async function addItem(ctx: Context) {
                 eq(shoppingTable.isComplete, false)
             )
         )
-    const totalItemCount = countResult[0]?.count ?? 0
+    const totalItemCount = incompleteItemsCount[0]?.count ?? 0
+
+    const pinnedMessage = await db
+        .select()
+        .from(pinnedListMessages)
+        .where(eq(pinnedListMessages.chat_id, chat.id))
+    const pinnedMessageId = pinnedMessage[0]?.message_id
+
+    await updateListMessageContent(ctx, chat.id, pinnedMessageId)
 
     await ctx.telegram.editMessageText(
         listMessage.chat.id,
@@ -54,4 +62,12 @@ export async function addItem(ctx: Context) {
             parse_mode: "Markdown",
         }
     )
+}
+
+// Command handler for /add
+export async function parseArgsAndAddItem(ctx: Context) {
+    const { args } = ctx as any
+
+    // Pass the parsed args to the reusable logic
+    await addItem(ctx, args)
 }

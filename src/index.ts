@@ -1,29 +1,46 @@
 import "dotenv/config"
+import { eq } from "drizzle-orm"
 import { Telegraf } from "telegraf"
-import { addItem } from "./commands/addItem"
+import { message } from "telegraf/filters"
+import { addItem, parseArgsAndAddItem } from "./commands/addItem"
 import { clearItems } from "./commands/clearItems"
-import { listItems } from "./commands/listItems"
+import { listItems, updateListMessageContent } from "./commands/listItems"
 import { db } from "./db/connection"
-import { shoppingTable } from "./db/schema"
+import { pinnedListMessages } from "./db/schema"
 
 const token = process.env.TELEGRAM_API_KEY || ""
 
 const bot = new Telegraf(token)
 
-bot.command("add", addItem)
+bot.use((ctx, next) => {
+    console.log("Update received:", ctx.update)
+    return next()
+})
+
+bot.command("add", parseArgsAndAddItem)
 bot.command("list", listItems)
 bot.command("clear", clearItems)
 
-bot.command("all", async (ctx) => {
-    const all = await db.select().from(shoppingTable)
+// on reply to list message, do smth
+bot.on(message("text"), async (ctx) => {
+    const chatId = ctx.message.chat.id
+    const messageId = ctx.message.message_id
+    const replyToMessageId = ctx.message.reply_to_message?.message_id
 
-    ctx.sendMessage(JSON.stringify(all))
-})
+    const pinnedMessage = await db
+        .select()
+        .from(pinnedListMessages)
+        .where(eq(pinnedListMessages.chat_id, chatId))
+        .limit(1)
 
-bot.command("dump", async (ctx) => {
-    console.log(ctx)
-    console.log(ctx.update.message.chat)
-    console.log(ctx.update.message.from)
+    console.log("Pinned message:", pinnedMessage)
+    if (!pinnedMessage || pinnedMessage[0].message_id !== replyToMessageId) {
+        return
+    }
+
+    const args = ctx.update.message.text.split(" ")
+
+    await addItem(ctx, args)
 })
 
 bot.launch()

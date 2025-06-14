@@ -13,4 +13,11 @@ export const shoppingTable = sqliteTable("shopping", {
     isComplete: int({ mode: "boolean" }).notNull().default(false),
 })
 
+export const pinnedListMessages = sqliteTable("pinned_list_messages", {
+    id: int().primaryKey({ autoIncrement: true }),
+    chat_id: int().notNull(),
+    message_id: int().notNull(),
+    date: int().notNull(),
+})
+
 export type ShoppingItem = InferSelectModel<typeof shoppingTable>
