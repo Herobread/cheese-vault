@@ -13,7 +13,11 @@ jobs:
             - name: Checkout latest code
               uses: actions/checkout@v4
 
+            - name: Stop old containers
+              run: docker compose down
+
+            - name: Copy .env file
+              run: cp ~/actions-runner/env-vars/.env .env
+
             - name: Build and restart docker-compose
-              run: |
-                  docker compose down
-                  docker compose up -d --build
+              run: docker compose up -d --build
