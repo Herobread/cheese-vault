@@ -15,4 +15,4 @@ COPY . .
 RUN bun run build
 
 # Run migrations, then start the app
-CMD [ "sh", "-c", "bun run drizzle-kit db push && bun run start" ]
+CMD [ "sh", "-c", "./db_setup.sh && bun run start" ]
