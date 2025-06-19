@@ -1,0 +1,19 @@
+name: Deploy Bot
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    deploy:
+        runs-on: self-hosted
+
+        steps:
+            - name: Checkout latest code
+              uses: actions/checkout@v4
+
+            - name: Build and restart docker-compose
+              run: |
+                  docker compose down
+                  docker compose up -d --build
