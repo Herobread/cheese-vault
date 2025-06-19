@@ -3,8 +3,8 @@ services:
     build: .
     image: cheese-vault
     env_file:
-      - .env
+      - ../env-vars/.env
     ports:
       - "3000:3000"
     volumes:
-      - ./data/local.db:/app/local.db
+      - ../-data/local.db:/usr/src/app/local.db

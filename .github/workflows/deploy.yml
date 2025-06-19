@@ -13,9 +13,6 @@ jobs:
             - name: Checkout latest code
               uses: actions/checkout@v4
 
-            - name: Copy .env file
-              run: cp ~/actions-runner/env-vars/.env .env
-
             - name: Stop old containers
               run: docker compose down
 
