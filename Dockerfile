@@ -14,5 +14,5 @@ COPY . .
 # Build the application
 RUN bun run build
 
-# Start the application
-CMD [ "bun", "run", "start" ]
+# Run migrations, then start the app
+CMD [ "sh", "-c", "bunx drizzle-kit migrate && bun run start" ]
