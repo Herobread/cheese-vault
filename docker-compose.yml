@@ -3,7 +3,7 @@ services:
     build: .
     image: cheese-vault
     env_file:
-      - ../env-vars/.env
+      - /home/herobread/actions-runner/env-vars/.env
     ports:
       - "3000:3000"
     volumes:
