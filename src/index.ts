@@ -45,6 +45,14 @@ bot.command("clear", (ctx) => {
     )
     clearItems(ctx)
 })
+bot.command("start", (ctx) => {
+    logger.info(
+        `'/start' command from user ${ctx.from.id} in chat ${ctx.chat.id}`
+    )
+    ctx.reply(
+        "Welcome! Use /add <item> to add items, /list to view items, and /clear to reset list."
+    )
+})
 
 bot.on(message("text"), async (ctx) => {
     const chatId = ctx.message.chat.id
