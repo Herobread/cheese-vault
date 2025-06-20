@@ -34,7 +34,7 @@ export async function addItem(ctx: Context, args: string[]) {
     const itemName = args.join(" ")
 
     const items = itemName
-        .split(/[,\s;|]+/) // Split by comma, space, semicolon, or pipe
+        .split(/[,\n]+/) // Split by comma or new line
         .map((item) => item.trim())
         .filter((item) => item !== "")
         .map((item) => capitalizeFirstLetter(item))
