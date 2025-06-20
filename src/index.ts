@@ -4,47 +4,106 @@ import { Telegraf } from "telegraf"
 import { message } from "telegraf/filters"
 import { addItem, parseArgsAndAddItem } from "./commands/addItem"
 import { clearItems } from "./commands/clearItems"
-import { listItems, updateListMessageContent } from "./commands/listItems"
+import { listItems } from "./commands/listItems"
 import { db } from "./db/connection"
 import { pinnedListMessages } from "./db/schema"
+import { logger } from "./logger"
 
 const token = process.env.TELEGRAM_API_KEY || ""
+
+if (!token) {
+    logger.error(
+        "TELEGRAM_API_KEY is not set. Please add it to your .env file."
+    )
+    process.exit(1)
+}
 
 const bot = new Telegraf(token)
 
 bot.use((ctx, next) => {
-    console.log("Update received:", ctx.update)
+    logger.debug(`Update received in chat ${ctx.chat?.id}`, {
+        update: ctx.update,
+    })
     return next()
 })
 
-bot.command("add", parseArgsAndAddItem)
-bot.command("list", listItems)
-bot.command("clear", clearItems)
+bot.command("add", (ctx) => {
+    logger.info(
+        `'/add' command from user ${ctx.from.id} in chat ${ctx.chat.id}`
+    )
+    parseArgsAndAddItem(ctx)
+})
+bot.command("list", (ctx) => {
+    logger.info(
+        `'/list' command from user ${ctx.from.id} in chat ${ctx.chat.id}`
+    )
+    listItems(ctx)
+})
+bot.command("clear", (ctx) => {
+    logger.info(
+        `'/clear' command from user ${ctx.from.id} in chat ${ctx.chat.id}`
+    )
+    clearItems(ctx)
+})
 
 bot.on(message("text"), async (ctx) => {
     const chatId = ctx.message.chat.id
     const messageId = ctx.message.message_id
     const replyToMessageId = ctx.message.reply_to_message?.message_id
+    const userId = ctx.from.id
 
-    const pinnedMessage = await db
-        .select()
-        .from(pinnedListMessages)
-        .where(eq(pinnedListMessages.chat_id, chatId))
-        .limit(1)
+    try {
+        const pinnedMessage = await db
+            .select()
+            .from(pinnedListMessages)
+            .where(eq(pinnedListMessages.chat_id, chatId))
+            .limit(1)
 
-    console.log("Pinned message:", pinnedMessage)
-    if (!pinnedMessage || pinnedMessage[0].message_id !== replyToMessageId) {
-        return
+        if (
+            !pinnedMessage ||
+            pinnedMessage[0].message_id !== replyToMessageId
+        ) {
+            return
+        }
+
+        logger.info(
+            `Message from user ${userId} is a reply to the pinned list in chat ${chatId}. Adding item.`
+        )
+        const args = ctx.update.message.text.split(" ")
+
+        await addItem(ctx, args)
+    } catch (error) {
+        logger.error(
+            `Error processing text message from user ${userId} in chat ${chatId}: ${
+                error instanceof Error ? error.message : error
+            }`
+        )
+        await ctx
+            .reply("Sorry, an error occurred while adding your item.")
+            .catch((e) => {
+                logger.error(
+                    `Failed to send error reply to chat ${chatId}: ${
+                        e instanceof Error ? e.message : e
+                    }`
+                )
+            })
     }
-
-    const args = ctx.update.message.text.split(" ")
-
-    await addItem(ctx, args)
 })
 
 bot.launch()
+    .then(() => {
+        logger.info("Bot active and listening for updates.")
+    })
+    .catch((err) => {
+        logger.error("Failed to launch bot:", err)
+        process.exit(1)
+    })
 
-console.log("Bot active")
-
-process.once("SIGINT", () => bot.stop("SIGINT"))
-process.once("SIGTERM", () => bot.stop("SIGTERM"))
+process.once("SIGINT", () => {
+    logger.info("SIGINT received. Stopping bot...")
+    bot.stop("SIGINT")
+})
+process.once("SIGTERM", () => {
+    logger.info("SIGTERM received. Stopping bot...")
+    bot.stop("SIGTERM")
+})
