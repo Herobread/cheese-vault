@@ -14,6 +14,12 @@ export async function addItem(ctx: Context, args: string[]) {
         return
     }
 
+    // ignore when reply is just a single character
+    // to prevent additiong when reply is used as link to list
+    if (args.length === 1 && args[0].trim().length <= 1) {
+        return
+    }
+
     const chat = ctx.chat
     const from = ctx.from
     const date = ctx.message?.date || Math.floor(Date.now() / 1000)
