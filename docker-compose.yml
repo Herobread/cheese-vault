@@ -1,6 +1,7 @@
 services:
   app:
     build: .
+    restart: always
     image: cheese-vault
     env_file:
       - /home/herobread/actions-runner/env-vars/.env
