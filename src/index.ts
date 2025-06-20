@@ -81,20 +81,7 @@ bot.on(message("text"), async (ctx) => {
 
         await addItem(ctx, args)
     } catch (error) {
-        logger.error(
-            `Error processing text message from user ${userId} in chat ${chatId}: ${
-                error instanceof Error ? error.message : error
-            }`
-        )
-        await ctx
-            .reply("Sorry, an error occurred while adding your item.")
-            .catch((e) => {
-                logger.error(
-                    `Failed to send error reply to chat ${chatId}: ${
-                        e instanceof Error ? e.message : e
-                    }`
-                )
-            })
+        // ignore errors if the message is not a reply to the pinned list
     }
 })
 
