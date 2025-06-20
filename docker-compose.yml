@@ -7,4 +7,4 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ../data/local.db:/usr/src/app/local.db
+      - /home/herobread/actions-runner/data/local.db:/usr/src/app/local.db
