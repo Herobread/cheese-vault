@@ -1,5 +1,7 @@
 FROM node:20
 
+WORKDIR /usr/src/app
+
 # Install Bun
 RUN curl -fsSL https://bun.sh/install | bash && \
     mv /root/.bun/bin/bun /usr/local/bin/bun
