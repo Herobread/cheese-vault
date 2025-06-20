@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm"
 import { Context } from "telegraf"
 import { db } from "../db/connection"
 import { pinnedListMessages, ShoppingItem, shoppingTable } from "../db/schema"
+import { logger } from "../logger"
 
 export async function listItems(ctx: Context) {
     const chatId = ctx.message?.chat.id
@@ -28,12 +29,14 @@ export async function listItems(ctx: Context) {
         .where(eq(pinnedListMessages.chat_id, chatId))
         .limit(1)
     if (pinnedMessage.length > 0) {
-        ctx.unpinChatMessage(pinnedMessage[0].message_id)
-        await db
-            .delete(pinnedListMessages)
-            .where(eq(pinnedListMessages.chat_id, chatId))
-
-        console.log("Unpinned previous message:", pinnedMessage[0].message_id)
+        try {
+            ctx.unpinChatMessage(pinnedMessage[0].message_id)
+            await db
+                .delete(pinnedListMessages)
+                .where(eq(pinnedListMessages.chat_id, chatId))
+        } catch (error) {
+            logger.error("Error unpinning message:", error)
+        }
     }
 
     const items = await db
