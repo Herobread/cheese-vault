@@ -81,8 +81,8 @@ function generateListMessageText(
         listMessage += "\n<empty>"
     }
 
-    items.forEach((item) => {
-        listMessage += `- ${item.name}`
+    items.forEach((item, i) => {
+        listMessage += `${i + 1}. ${item.name}`
 
         if (isBlame) {
             listMessage += ` [${generateUserName(item)}]\n`

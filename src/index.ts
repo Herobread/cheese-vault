@@ -4,6 +4,7 @@ import { Telegraf } from "telegraf"
 import { message } from "telegraf/filters"
 import { addItem, parseArgsAndAddItem } from "./commands/addItem"
 import { clearItems } from "./commands/clearItems"
+import { deleteItem } from "./commands/deleteItem"
 import { listItems } from "./commands/listItems"
 import { db } from "./db/connection"
 import { pinnedListMessages } from "./db/schema"
@@ -32,6 +33,12 @@ bot.command("add", (ctx) => {
         `'/add' command from user ${ctx.from.id} in chat ${ctx.chat.id}`
     )
     parseArgsAndAddItem(ctx)
+})
+bot.command("delete", (ctx) => {
+    logger.info(
+        `'/delete' command from user ${ctx.from.id} in chat ${ctx.chat.id}`
+    )
+    deleteItem(ctx)
 })
 bot.command("list", (ctx) => {
     logger.info(

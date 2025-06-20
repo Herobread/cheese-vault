@@ -6,7 +6,7 @@
         "start": "node dist/index.js",
         "build": "tsc",
         "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
-        "studio": "npx drizzle-kit studio"
+        "studio": "bunx drizzle-kit studio --config src/drizzle.config.ts"
     },
     "keywords": [],
     "author": "",
