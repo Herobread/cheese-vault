@@ -1,22 +1,81 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "ec5528c0-9d09-4c7e-86b0-4c515ebc2371",
+  "id": "e5deb60a-327b-4b3c-9ffa-432e6cb9ee69",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
-    "shopping": {
-      "name": "shopping",
+    "shopping_items": {
+      "name": "shopping_items",
       "columns": {
-        "id": {
-          "name": "id",
+        "item_id": {
+          "name": "item_id",
           "type": "integer",
           "primaryKey": true,
           "notNull": true,
           "autoincrement": true
         },
-        "item": {
-          "name": "item",
+        "item_name": {
+          "name": "item_name",
           "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "list_id": {
+          "name": "list_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "shopping_items_list_id_shopping_lists_list_id_fk": {
+          "name": "shopping_items_list_id_shopping_lists_list_id_fk",
+          "tableFrom": "shopping_items",
+          "tableTo": "shopping_lists",
+          "columnsFrom": [
+            "list_id"
+          ],
+          "columnsTo": [
+            "list_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "shopping_lists": {
+      "name": "shopping_lists",
+      "columns": {
+        "list_id": {
+          "name": "list_id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "list_name": {
+          "name": "list_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "chat_id": {
+          "name": "chat_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "message_id": {
+          "name": "message_id",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false

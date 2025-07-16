@@ -1,1 +1,0 @@
-ALTER TABLE `shopping` ADD `isComplete` integer DEFAULT false NOT NULL;
