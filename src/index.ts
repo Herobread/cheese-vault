@@ -1,4 +1,5 @@
 import { addCommandHandler } from "@/commands/addCommand"
+import { addListCommandHandler } from "@/commands/addListCommand"
 import { listCommandHandler } from "@/commands/listCommand"
 import { listListsCommandHandler } from "@/commands/listListsCommand"
 import "dotenv/config"
@@ -42,6 +43,10 @@ bot.command("list", (ctx) => {
 
 bot.command("lists", (ctx) => {
     listListsCommandHandler(ctx)
+})
+
+bot.command("addlist", (ctx) => {
+    addListCommandHandler(ctx)
 })
 
 bot.launch()
