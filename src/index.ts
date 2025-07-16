@@ -1,4 +1,4 @@
-import { addCommandHandler } from "@/commands/addCommand"
+import { addItemCommandHandler } from "@/commands/addItemCommand"
 import { addListCommandHandler } from "@/commands/addListCommand"
 import { listCommandHandler } from "@/commands/listCommand"
 import { listListsCommandHandler } from "@/commands/listListsCommand"
@@ -34,7 +34,7 @@ bot.command("args", (ctx) => {
 })
 
 bot.command("add", (ctx) => {
-    addCommandHandler(ctx)
+    addItemCommandHandler(ctx)
 })
 
 bot.command("list", (ctx) => {
