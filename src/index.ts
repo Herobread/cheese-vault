@@ -25,7 +25,7 @@ bot.command("echo", (ctx) => {
     ctx.sendMessage(`You said: ${ctx.message.text.replace("/echo", "").trim()}`)
 })
 
-bot.command("args", (ctx: Context) => {
+bot.command("args", (ctx) => {
     parseTestCommand(ctx)
 })
 

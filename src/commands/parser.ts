@@ -14,3 +14,27 @@ export default function parseArgs(str: string): string[] {
             .filter((arg) => arg.length > 0)
     )
 }
+
+/**
+ * function to parse command argumments from string with /command args
+ * @param messageText The text of the message containing the command and arguments.
+ * @returns object of command name and arguments
+ */
+export function parseCommand(messageText: string): {
+    command: string
+    args: string[]
+} {
+    const commandMatch = messageText.match(/^\/(\w+)(?:\s+([\s\S]*))?$/)
+
+    if (!commandMatch) {
+        return {
+            command: "",
+            args: [],
+        }
+    }
+
+    const command = commandMatch[1]
+    const args = commandMatch[2] ? parseArgs(commandMatch[2]) : []
+
+    return { command, args }
+}
