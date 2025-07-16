@@ -24,17 +24,17 @@ export function parseCommand(messageText: string): {
     command: string
     args: string[]
 } {
-    const commandMatch = messageText.match(/^\/(\w+)(?:\s+([\s\S]*))?$/)
-
-    if (!commandMatch) {
-        return {
-            command: "",
-            args: [],
-        }
+    if (!messageText.startsWith("/")) {
+        return { command: "", args: [] }
     }
 
-    const command = commandMatch[1]
-    const args = commandMatch[2] ? parseArgs(commandMatch[2]) : []
+    const firstSpaceIndex = messageText.indexOf(" ")
+    if (firstSpaceIndex === -1) {
+        return { command: messageText.substring(1), args: [] }
+    }
+
+    const command = messageText.substring(1, firstSpaceIndex)
+    const args = parseArgs(messageText.substring(firstSpaceIndex + 1))
 
     return { command, args }
 }
