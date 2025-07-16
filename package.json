@@ -6,7 +6,9 @@
         "start": "node dist/index.js",
         "build": "tsc",
         "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
-        "studio": "bunx drizzle-kit studio --config src/drizzle.config.ts"
+        "studio": "bunx drizzle-kit studio --config src/drizzle.config.ts",
+        "test": "jest",
+        "test:watch": "jest --watch"
     },
     "keywords": [],
     "author": "",
@@ -22,9 +24,12 @@
     },
     "dependencies": {
         "@libsql/client": "^0.15.9",
+        "@types/jest": "^30.0.0",
         "dotenv": "^16.5.0",
         "drizzle-orm": "^0.44.2",
+        "jest": "^30.0.4",
         "telegraf": "^4.16.3",
+        "ts-jest": "^29.4.0",
         "winston": "^3.17.0",
         "winston-daily-rotate-file": "^5.0.0"
     }

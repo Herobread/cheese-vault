@@ -1,5 +1,6 @@
 import "dotenv/config"
-import { Telegraf } from "telegraf"
+import { Context, Telegraf } from "telegraf"
+import { parseTestCommand } from "./commands/parserTestCommand"
 import { logger } from "./logger"
 
 const token = process.env.TELEGRAM_API_KEY || ""
@@ -22,6 +23,10 @@ bot.use((ctx, next) => {
 
 bot.command("echo", (ctx) => {
     ctx.sendMessage(`You said: ${ctx.message.text.replace("/echo", "").trim()}`)
+})
+
+bot.command("args", (ctx: Context) => {
+    parseTestCommand(ctx)
 })
 
 bot.launch()
