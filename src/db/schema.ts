@@ -1,4 +1,4 @@
-import { InferSelectModel } from "drizzle-orm"
+import { InferInsertModel, InferSelectModel } from "drizzle-orm"
 import { int, sqliteTable, text } from "drizzle-orm/sqlite-core"
 
 export const shoppingItems = sqliteTable("shopping_items", {
@@ -15,7 +15,8 @@ export const shoppingLists = sqliteTable("shopping_lists", {
     list_id: int().primaryKey({ autoIncrement: true }),
     list_name: text().notNull(),
     chat_id: int().notNull(),
-    message_id: int().notNull(),
+    message_id: int(),
 })
 
 export type ShoppingItem = InferSelectModel<typeof shoppingItems>
+export type InsertableShoppingItem = InferInsertModel<typeof shoppingItems>

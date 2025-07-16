@@ -15,9 +15,9 @@ bun run dev
 update changes from schema to db file:
 
 ```bash
-npx drizzle-kit migrate
+bunx drizzle-kit generate --config src/drizzle.config.ts
 ```
 
 ```bash
-npx drizzle-kit generate
+bunx drizzle-kit push --config src/drizzle.config.ts
 ```

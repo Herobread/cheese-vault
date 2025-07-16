@@ -1,5 +1,7 @@
+import { addCommandHandler } from "@/commands/addCommand"
+import { listCommandHandler } from "@/commands/listCommand"
 import "dotenv/config"
-import { Context, Telegraf } from "telegraf"
+import { Telegraf } from "telegraf"
 import { parseTestCommand } from "./commands/parserTestCommand"
 import { logger } from "./logger"
 
@@ -27,6 +29,14 @@ bot.command("echo", (ctx) => {
 
 bot.command("args", (ctx) => {
     parseTestCommand(ctx)
+})
+
+bot.command("add", (ctx) => {
+    addCommandHandler(ctx)
+})
+
+bot.command("list", (ctx) => {
+    listCommandHandler(ctx)
 })
 
 bot.launch()
