@@ -1,5 +1,6 @@
 import { addCommandHandler } from "@/commands/addCommand"
 import { listCommandHandler } from "@/commands/listCommand"
+import { listListsCommandHandler } from "@/commands/listListsCommand"
 import "dotenv/config"
 import { Telegraf } from "telegraf"
 import { parseTestCommand } from "./commands/parserTestCommand"
@@ -37,6 +38,10 @@ bot.command("add", (ctx) => {
 
 bot.command("list", (ctx) => {
     listCommandHandler(ctx)
+})
+
+bot.command("lists", (ctx) => {
+    listListsCommandHandler(ctx)
 })
 
 bot.launch()
