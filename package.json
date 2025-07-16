@@ -5,7 +5,7 @@
     "scripts": {
         "start": "node dist/index.js",
         "build": "tsc",
-        "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
+        "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node -r tsconfig-paths/register' src/index.ts",
         "studio": "bunx drizzle-kit studio --config src/drizzle.config.ts",
         "test": "jest",
         "test:watch": "jest --watch"
@@ -19,6 +19,7 @@
         "drizzle-kit": "^0.31.1",
         "nodemon": "^3.1.10",
         "ts-node": "^10.9.2",
+        "tsconfig-paths": "^4.2.0",
         "tsx": "^4.20.3",
         "typescript": "^5.8.3"
     },
