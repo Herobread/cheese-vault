@@ -11,13 +11,16 @@ import { Message, Update } from "telegraf/typings/core/types/typegram"
 
 export const MAIN_LIST_IDENTIFIER = "main"
 
-export async function addItemCommandHandler(
-    ctx: Context<Update.MessageUpdate<Message.TextMessage>>
-) {
-    const { args } = parseCommand(ctx.message.text)
+export async function getMainListId(chat_id: number) {}
 
-    const chat_id = ctx.chat.id
-
+/**
+ * check if first word is name of the list, otherwise - use main list
+ *
+ * @returns { list_id: number, rest: string[] }
+ * @param args The arguments passed to the command.
+ * @param chat_id The ID of the chat where the command was issued.
+ */
+export async function extractListIdFromArgs(args: string[], chat_id: number) {
     // TODO: parse name of list, if given
     // assume target is primary list
     let targetListName = MAIN_LIST_IDENTIFIER
@@ -73,6 +76,22 @@ export async function addItemCommandHandler(
             list_id = primaryList[0].list_id
         }
     }
+
+    return {
+        list_id,
+        rest: args,
+    }
+}
+
+export async function addItemCommandHandler(
+    ctx: Context<Update.MessageUpdate<Message.TextMessage>>
+) {
+    let { args } = parseCommand(ctx.message.text)
+
+    const chat_id = ctx.chat.id
+
+    const { list_id, rest } = await extractListIdFromArgs(args, chat_id)
+    args = rest
 
     // insert items in the list:
     const items: InsertableShoppingItem[] = args.map((arg) => {
