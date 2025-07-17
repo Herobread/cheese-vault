@@ -51,21 +51,14 @@ export async function getMainListId(chat_id: number) {
  * @param chat_id The ID of the chat where the command was issued.
  */
 export async function extractListIdFromArgs(args: string[], chat_id: number) {
-    // TODO: parse name of list, if given
-    // assume target is primary list
     const potentialTargetListName = args[0].split(" ")[0]
 
-    // TODO TODO ignore list selection and just add item, if its just 1 word TODO!!!!!!
     if (args[0].split(" ").length <= 1) {
         return {
             list_id: await getMainListId(chat_id),
             rest: args,
         }
     }
-
-    // check if list exists:
-
-    // if there is list with name MAIN_LIST_IDENTIFIER - use it, if not - check if second arg is in db, if not - create MAIN_LIST_IDENTIFIER list
     const potentialList = await db
         .select()
         .from(shoppingLists)
@@ -91,6 +84,11 @@ export async function extractListIdFromArgs(args: string[], chat_id: number) {
     }
 }
 
+/**
+ * Handles the add item command.
+ *
+ * @param ctx The context of the command.
+ */
 export async function addItemCommandHandler(
     ctx: Context<Update.MessageUpdate<Message.TextMessage>>
 ) {
@@ -113,10 +111,22 @@ export async function addItemCommandHandler(
     ctx.sendMessage(`Adding ${JSON.stringify(items)}`)
 }
 
+/**
+ * Adds multiple items to the shopping list.
+ *
+ * @param items An array of items to be added to the shopping list.
+ * @returns The result of the database insertion.
+ */
 export async function addItems(items: InsertableShoppingItem[]) {
     return await db.insert(shoppingItems).values(items)
 }
 
+/**
+ * Adds a single item to the shopping list.
+ *
+ * @param item The item to be added to the shopping list.
+ * @returns The result of the database insertion.
+ */
 export async function addItem(item: InsertableShoppingItem) {
     return await db.insert(shoppingItems).values([item])
 }
