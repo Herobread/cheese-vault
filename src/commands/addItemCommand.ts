@@ -70,11 +70,12 @@ export async function extractListIdFromArgs(args: string[], chat_id: number) {
         )
 
     if (potentialList[0]) {
-        args[0] = args[0].split(" ").slice(1).join(" ")
+        const newFirstArg = args[0].split(" ").slice(1).join(" ")
+        const newArgs = [newFirstArg, ...args.slice(1)]
 
         return {
             list_id: potentialList[0].list_id,
-            rest: args,
+            rest: newArgs,
         }
     } else {
         return {
