@@ -120,13 +120,3 @@ export async function addItemCommandHandler(
 export async function addItems(items: InsertableShoppingItem[]) {
     return await db.insert(shoppingItems).values(items)
 }
-
-/**
- * Adds a single item to the shopping list.
- *
- * @param item The item to be added to the shopping list.
- * @returns The result of the database insertion.
- */
-export async function addItem(item: InsertableShoppingItem) {
-    return await db.insert(shoppingItems).values([item])
-}
