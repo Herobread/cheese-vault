@@ -36,6 +36,11 @@ export async function addItemCommandHandler(
         (list) => list.list_name === potentialTargetListName
     )
 
+    // ignore list selection and just add item, if its just 1 word
+    if (args[0].split(" ").length <= 1) {
+        targetList = undefined
+    }
+
     let listExists = false
     let list_id = null
 
@@ -69,10 +74,7 @@ export async function addItemCommandHandler(
         }
     }
 
-    // const listExists = currentChatLists.length > 0
-
     // insert items in the list:
-
     const items: InsertableShoppingItem[] = args.map((arg) => {
         return {
             item_name: arg,
