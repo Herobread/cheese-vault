@@ -5,13 +5,43 @@ import {
     shoppingItems,
     shoppingLists,
 } from "@/db/schema"
-import { eq } from "drizzle-orm"
+import { and, eq } from "drizzle-orm"
 import { Context } from "telegraf"
 import { Message, Update } from "telegraf/typings/core/types/typegram"
 
 export const MAIN_LIST_IDENTIFIER = "main"
 
-export async function getMainListId(chat_id: number) {}
+/**
+ * Get main list id. This will create main list if doesn't exist.
+ *
+ * @param chat_id
+ */
+export async function getMainListId(chat_id: number) {
+    const mainList = await db
+        .select()
+        .from(shoppingLists)
+        .where(
+            and(
+                eq(shoppingLists.chat_id, chat_id),
+                eq(shoppingLists.list_name, MAIN_LIST_IDENTIFIER)
+            )
+        )
+        .limit(1)
+
+    if (mainList[0]) {
+        return mainList[0].list_id
+    }
+
+    const newMainList = await db
+        .insert(shoppingLists)
+        .values({
+            chat_id,
+            list_name: MAIN_LIST_IDENTIFIER,
+        })
+        .returning()
+
+    return newMainList[0].list_id
+}
 
 /**
  * check if first word is name of the list, otherwise - use main list
@@ -23,7 +53,6 @@ export async function getMainListId(chat_id: number) {}
 export async function extractListIdFromArgs(args: string[], chat_id: number) {
     // TODO: parse name of list, if given
     // assume target is primary list
-    let targetListName = MAIN_LIST_IDENTIFIER
     const potentialTargetListName = args[0].split(" ")[0]
 
     // check if list exists:
@@ -45,7 +74,7 @@ export async function extractListIdFromArgs(args: string[], chat_id: number) {
     }
 
     let listExists = false
-    let list_id = null
+    let list_id: number = -1
 
     // first arg is name of some list
     if (targetList) {
@@ -54,27 +83,7 @@ export async function extractListIdFromArgs(args: string[], chat_id: number) {
 
         args[0] = args[0].split(" ").slice(1).join(" ")
     } else {
-        // check if main list exists:
-        targetList = currentChatLists.find(
-            (list) => list.list_name === MAIN_LIST_IDENTIFIER
-        )
-
-        // if not - create:
-        const mainListExists = !!targetList
-        if (mainListExists) {
-            list_id = currentChatLists[0].list_id
-        } else {
-            // create primary list
-            const primaryList = await db
-                .insert(shoppingLists)
-                .values({
-                    chat_id,
-                    list_name: targetListName,
-                })
-                .returning()
-
-            list_id = primaryList[0].list_id
-        }
+        list_id = await getMainListId(chat_id)
     }
 
     return {
@@ -91,12 +100,11 @@ export async function addItemCommandHandler(
     const chat_id = ctx.chat.id
 
     const { list_id, rest } = await extractListIdFromArgs(args, chat_id)
-    args = rest
+    const itemNames = rest
 
-    // insert items in the list:
-    const items: InsertableShoppingItem[] = args.map((arg) => {
+    const items: InsertableShoppingItem[] = itemNames.map((item_name) => {
         return {
-            item_name: arg,
+            item_name,
             list_id,
         }
     })
