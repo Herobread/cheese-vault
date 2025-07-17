@@ -14,5 +14,11 @@ export async function listListsCommandHandler(
         .from(shoppingLists)
         .where(eq(shoppingLists.chat_id, chat_id))
 
-    ctx.sendMessage(JSON.stringify(currentChatLists))
+    let formattedListsString = "Lists:\n\n"
+
+    currentChatLists.forEach((list) => {
+        formattedListsString += `[${list.list_id}]. ${list.list_name}\n`
+    })
+
+    ctx.sendMessage(formattedListsString)
 }
