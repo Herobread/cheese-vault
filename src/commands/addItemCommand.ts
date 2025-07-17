@@ -55,40 +55,39 @@ export async function extractListIdFromArgs(args: string[], chat_id: number) {
     // assume target is primary list
     const potentialTargetListName = args[0].split(" ")[0]
 
+    // TODO TODO ignore list selection and just add item, if its just 1 word TODO!!!!!!
+    if (args[0].split(" ").length <= 1) {
+        return {
+            list_id: await getMainListId(chat_id),
+            rest: args,
+        }
+    }
+
     // check if list exists:
 
     // if there is list with name MAIN_LIST_IDENTIFIER - use it, if not - check if second arg is in db, if not - create MAIN_LIST_IDENTIFIER list
-    const currentChatLists = await db
+    const potentialList = await db
         .select()
         .from(shoppingLists)
-        .where(eq(shoppingLists.chat_id, chat_id))
+        .where(
+            and(
+                eq(shoppingLists.chat_id, chat_id),
+                eq(shoppingLists.list_name, potentialTargetListName)
+            )
+        )
 
-    // check if first argument
-    let targetList = currentChatLists.find(
-        (list) => list.list_name === potentialTargetListName
-    )
-
-    // ignore list selection and just add item, if its just 1 word
-    if (args[0].split(" ").length <= 1) {
-        targetList = undefined
-    }
-
-    let listExists = false
-    let list_id: number = -1
-
-    // first arg is name of some list
-    if (targetList) {
-        listExists = true
-        list_id = targetList.list_id
-
+    if (potentialList[0]) {
         args[0] = args[0].split(" ").slice(1).join(" ")
-    } else {
-        list_id = await getMainListId(chat_id)
-    }
 
-    return {
-        list_id,
-        rest: args,
+        return {
+            list_id: potentialList[0].list_id,
+            rest: args,
+        }
+    } else {
+        return {
+            list_id: await getMainListId(chat_id),
+            rest: args,
+        }
     }
 }
 
