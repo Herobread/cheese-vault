@@ -1,18 +1,50 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "e5deb60a-327b-4b3c-9ffa-432e6cb9ee69",
+  "id": "beb0fa35-cd8b-4025-8e8a-9697b6542fb0",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
+    "chat_data": {
+      "name": "chat_data",
+      "columns": {
+        "chat_id": {
+          "name": "chat_id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "next_id": {
+          "name": "next_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "shopping_items": {
       "name": "shopping_items",
       "columns": {
-        "item_id": {
-          "name": "item_id",
+        "uid": {
+          "name": "uid",
           "type": "integer",
           "primaryKey": true,
           "notNull": true,
           "autoincrement": true
+        },
+        "item_id": {
+          "name": "item_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         },
         "item_name": {
           "name": "item_name",
@@ -29,7 +61,15 @@
           "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "shopping_items_uid_unique": {
+          "name": "shopping_items_uid_unique",
+          "columns": [
+            "uid"
+          ],
+          "isUnique": true
+        }
+      },
       "foreignKeys": {
         "shopping_items_list_id_shopping_lists_list_id_fk": {
           "name": "shopping_items_list_id_shopping_lists_list_id_fk",
@@ -77,11 +117,19 @@
           "name": "message_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "shopping_lists_list_id_unique": {
+          "name": "shopping_lists_list_id_unique",
+          "columns": [
+            "list_id"
+          ],
+          "isUnique": true
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},

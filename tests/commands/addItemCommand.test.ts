@@ -8,6 +8,7 @@ import {
     handleAddItemCommand,
     MAIN_LIST_IDENTIFIER,
 } from "@/commands/addItemCommand"
+import { ensureChatData } from "@/commands/ensureChatData"
 import parseArgs from "@/commands/parser"
 import { BetterSQLite3Database } from "drizzle-orm/better-sqlite3"
 import { migrate } from "drizzle-orm/better-sqlite3/migrator"
@@ -303,6 +304,7 @@ describe("handleAddItemCommand", () => {
     beforeAll(async () => {
         db = getTestDb()
         migrate(db, { migrationsFolder })
+        ensureChatData(db, chat_id)
     })
 
     beforeEach(async () => {
@@ -345,7 +347,7 @@ describe("handleAddItemCommand", () => {
         expect(result[0].item_name).toBe("Bread")
         expect(result[1].item_name).toBe("Eggs")
         const mainListId = await getMainListId(db, chat_id)
-        result.forEach((item) => expect(item.list_id).toBe(mainListId))
+        result.forEach((item: any) => expect(item.list_id).toBe(mainListId))
         const items = await db
             .select()
             .from(shoppingItems)
