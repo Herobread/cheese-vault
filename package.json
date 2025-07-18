@@ -7,6 +7,9 @@
         "build": "tsc",
         "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node -r tsconfig-paths/register' src/index.ts",
         "studio": "bunx drizzle-kit studio --config src/drizzle.config.ts",
+        "generate": "bunx drizzle-kit generate --config src/drizzle.config.ts",
+        "migrate": "bunx drizzle-kit migrate --config src/drizzle.config.ts",
+        "push": "bunx drizzle-kit push --config src/drizzle.config.ts",
         "test": "jest",
         "test:watch": "jest --watch"
     },
