@@ -15,7 +15,9 @@
     "license": "ISC",
     "description": "",
     "devDependencies": {
+        "@sqlite.org/sqlite-wasm": "^3.50.1-build1",
         "@types/node": "^22.15.30",
+        "better-sqlite3": "^12.2.0",
         "drizzle-kit": "^0.31.1",
         "nodemon": "^3.1.10",
         "ts-node": "^10.9.2",
@@ -25,6 +27,7 @@
     },
     "dependencies": {
         "@libsql/client": "^0.15.9",
+        "@types/better-sqlite3": "^7.6.13",
         "@types/jest": "^30.0.0",
         "dotenv": "^16.5.0",
         "drizzle-orm": "^0.44.2",

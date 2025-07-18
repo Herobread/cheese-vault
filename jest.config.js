@@ -5,5 +5,6 @@ module.exports = {
         "^@/(.*)$": "<rootDir>/src/$1",
         "^@commands/(.*)$": "<rootDir>/src/commands/$1",
         "^@db/(.*)$": "<rootDir>/src/db/$1",
+        "^tests/(.*)$": "<rootDir>/tests/$1",
     },
 }
