@@ -100,6 +100,37 @@ export async function extractListIdFromArgs(
 }
 
 /**
+ * Main logic for adding items to a shopping list.
+ *
+ * @param messageText The text of the message.
+ * @param chat_id The ID of the chat where the command was issued.
+ * @returns The items that were added.
+ */
+export async function handleAddItemCommand(
+    db: LibSQLDatabase,
+    messageText: string,
+    chat_id: number
+) {
+    const { args } = parseCommand(messageText)
+
+    if (args.length == 0) {
+        return []
+    }
+
+    const { list_id, rest } = await extractListIdFromArgs(db, args, chat_id)
+    const itemNames = rest
+
+    const items: InsertableShoppingItem[] = itemNames.map((item_name) => ({
+        item_name,
+        list_id,
+    }))
+
+    await addItems(db, items)
+
+    return items
+}
+
+/**
  * Handles the add item command.
  *
  * @param ctx The context of the command.
@@ -107,27 +138,13 @@ export async function extractListIdFromArgs(
 export async function addItemCommandHandler(
     ctx: Context<Update.MessageUpdate<Message.TextMessage>>
 ) {
-    let { args } = parseCommand(ctx.message.text)
+    const chat_id = ctx.chat.id
+    const items = await handleAddItemCommand(db, ctx.message.text, chat_id)
 
-    if (args.length == 0) {
+    if (!items) {
         ctx.sendMessage("No idea what to add, pls type smth after add.")
-
         return
     }
-
-    const chat_id = ctx.chat.id
-
-    const { list_id, rest } = await extractListIdFromArgs(db, args, chat_id)
-    const itemNames = rest
-
-    const items: InsertableShoppingItem[] = itemNames.map((item_name) => {
-        return {
-            item_name,
-            list_id,
-        }
-    })
-
-    await addItems(items)
 
     ctx.sendMessage(`Adding ${JSON.stringify(items)}`)
 }
@@ -138,6 +155,9 @@ export async function addItemCommandHandler(
  * @param items An array of items to be added to the shopping list.
  * @returns The result of the database insertion.
  */
-export async function addItems(items: InsertableShoppingItem[]) {
+export async function addItems(
+    db: LibSQLDatabase,
+    items: InsertableShoppingItem[]
+) {
     return await db.insert(shoppingItems).values(items)
 }
