@@ -7,7 +7,6 @@ import { listListsCommandHandler } from "@/commands/listListsCommand"
 import { db } from "@/db/connection"
 import "dotenv/config"
 import { Telegraf } from "telegraf"
-import { parseTestCommand } from "./commands/parserTestCommand"
 import { logger } from "./logger"
 
 const token = process.env.TELEGRAM_API_KEY || ""
@@ -42,31 +41,17 @@ bot.use(async (ctx, next) => {
     return next()
 })
 
-bot.command("echo", (ctx) => {
-    ctx.sendMessage(`You said: ${ctx.message.text.replace("/echo", "").trim()}`)
-})
-
+// delete items
 bot.command("delete", deleteItemCommandHandler)
+bot.command("del", deleteItemCommandHandler)
 
-bot.command("args", (ctx) => {
-    parseTestCommand(ctx)
-})
+// items
+bot.command("add", addItemCommandHandler)
+bot.command("list", listCommandHandler)
 
-bot.command("add", (ctx) => {
-    addItemCommandHandler(ctx)
-})
-
-bot.command("list", (ctx) => {
-    listCommandHandler(ctx)
-})
-
-bot.command("lists", (ctx) => {
-    listListsCommandHandler(ctx)
-})
-
-bot.command("addlist", (ctx) => {
-    addListCommandHandler(ctx)
-})
+// lists
+bot.command("lists", listListsCommandHandler)
+bot.command("addlist", addListCommandHandler)
 
 bot.launch()
     .then(() => {

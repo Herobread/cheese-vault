@@ -39,8 +39,6 @@ export async function deleteItemCommandHandler(
 ) {
     const chat_id = ctx.chat.id
 
-    console.log(ctx.message.text)
-
     const { args } = parseCommand(ctx.message.text)
 
     if (!args[0]) {
