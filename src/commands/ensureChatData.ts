@@ -1,4 +1,4 @@
-import { chatData } from "@/db/schema"
+import { chatDatas } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import { LibSQLDatabase } from "drizzle-orm/libsql"
 
@@ -8,10 +8,13 @@ import { LibSQLDatabase } from "drizzle-orm/libsql"
 export async function ensureChatData(db: LibSQLDatabase, chat_id: number) {
     const existing = await db
         .select()
-        .from(chatData)
-        .where(eq(chatData.chat_id, chat_id))
+        .from(chatDatas)
+        .where(eq(chatDatas.chat_id, chat_id))
 
-    if (!existing) {
-        await db.insert(chatData).values({ chat_id, next_id: 1 })
+    if (existing.length === 0) {
+        await db
+            .insert(chatDatas)
+            .values({ chat_id: chat_id, next_id: 1 })
+            .run()
     }
 }
