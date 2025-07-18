@@ -9,6 +9,8 @@ export default function parseArgs(str: string): string[] {
     return (
         str
             // split by new lines and commas, but also ignore big gaps and empty elements
+            .trim()
+            .replace(/[ ]{2,}/g, " ")
             .split(/[\n,]+/)
             .map((arg) => arg.trim())
             .filter((arg) => arg.length > 0)

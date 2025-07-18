@@ -51,7 +51,11 @@ export async function getMainListId(db: LibSQLDatabase, chat_id: number) {
  * @param args The arguments passed to the command.
  * @param chat_id The ID of the chat where the command was issued.
  */
-export async function extractListIdFromArgs(args: string[], chat_id: number) {
+export async function extractListIdFromArgs(
+    db: LibSQLDatabase,
+    args: string[],
+    chat_id: number
+) {
     if (args.length === 0) {
         return {
             list_id: 0,
@@ -59,7 +63,7 @@ export async function extractListIdFromArgs(args: string[], chat_id: number) {
         }
     }
 
-    const potentialTargetListName = args[0].split(" ")[0]
+    const potentialTargetListName = args[0].replace(/\s+/g, " ").split(" ")[0]
 
     // only 1 item given - just add to main list
     if (args[0].split(" ").length <= 1) {
@@ -113,7 +117,7 @@ export async function addItemCommandHandler(
 
     const chat_id = ctx.chat.id
 
-    const { list_id, rest } = await extractListIdFromArgs(args, chat_id)
+    const { list_id, rest } = await extractListIdFromArgs(db, args, chat_id)
     const itemNames = rest
 
     const items: InsertableShoppingItem[] = itemNames.map((item_name) => {
