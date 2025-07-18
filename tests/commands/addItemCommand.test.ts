@@ -5,6 +5,7 @@ import path from "path"
 import {
     extractListIdFromArgs,
     getMainListId,
+    handleAddItemCommand,
     MAIN_LIST_IDENTIFIER,
 } from "@/commands/addItemCommand"
 import parseArgs from "@/commands/parser"
@@ -292,5 +293,139 @@ describe("extractListIdFromArgs", () => {
         expect(result.list_id).toBe(list.list_id)
         expect(result.rest[0]).toBe("Bread")
         expect(result.rest[1]).toBe("Eggs")
+    })
+})
+
+describe("handleAddItemCommand", () => {
+    let db: any
+    const chat_id = 777
+
+    beforeAll(async () => {
+        db = getTestDb()
+        migrate(db, { migrationsFolder })
+    })
+
+    beforeEach(async () => {
+        await db.delete(shoppingItems)
+        await db.delete(shoppingLists)
+
+        await db.run("DELETE FROM sqlite_sequence WHERE name='shoppingItems'")
+        await db.run("DELETE FROM sqlite_sequence WHERE name='shoppingLists'")
+    })
+
+    it("returns [] if no args", async () => {
+        const result = await handleAddItemCommand(db, "/add", chat_id)
+        expect(result).toStrictEqual([])
+        const items = await db.select().from(shoppingItems)
+        expect(items.length).toBe(0)
+    })
+
+    it("adds single item to main list", async () => {
+        const result = await handleAddItemCommand(db, "/add Bread", chat_id)
+        expect(result).toHaveLength(1)
+        expect(result[0].item_name).toBe("Bread")
+        const mainListId = await getMainListId(db, chat_id)
+        expect(result[0].list_id).toBe(mainListId)
+        // Item persisted
+        const items = await db
+            .select()
+            .from(shoppingItems)
+            .where(eq(shoppingItems.list_id, mainListId))
+        expect(items.length).toBe(1)
+        expect(items[0].item_name).toBe("Bread")
+    })
+
+    it("adds multiple items to main list", async () => {
+        const result = await handleAddItemCommand(
+            db,
+            "/add Bread, Eggs",
+            chat_id
+        )
+        expect(result).toHaveLength(2)
+        expect(result[0].item_name).toBe("Bread")
+        expect(result[1].item_name).toBe("Eggs")
+        const mainListId = await getMainListId(db, chat_id)
+        result.forEach((item) => expect(item.list_id).toBe(mainListId))
+        const items = await db
+            .select()
+            .from(shoppingItems)
+            .where(eq(shoppingItems.list_id, mainListId))
+        expect(items.length).toBe(2)
+    })
+
+    it("adds item to a specific list if first word matches list name", async () => {
+        // Pre-create a custom list
+        const [list] = await db
+            .insert(shoppingLists)
+            .values({
+                chat_id,
+                list_name: "Special",
+            })
+            .returning()
+        const result = await handleAddItemCommand(
+            db,
+            "/add Special Milk",
+            chat_id
+        )
+        expect(result).toHaveLength(1)
+        expect(result[0].item_name).toBe("Milk")
+        expect(result[0].list_id).toBe(list.list_id)
+        const items = await db
+            .select()
+            .from(shoppingItems)
+            .where(eq(shoppingItems.list_id, list.list_id))
+        expect(items.length).toBe(1)
+        expect(items[0].item_name).toBe("Milk")
+    })
+
+    it("adds multiple items to a specific list", async () => {
+        const [list] = await db
+            .insert(shoppingLists)
+            .values({
+                chat_id,
+                list_name: "party",
+            })
+            .returning()
+        const result = await handleAddItemCommand(
+            db,
+            "/add party Cake, Soda",
+            chat_id
+        )
+        expect(result).toHaveLength(2)
+        expect(result[0].item_name).toBe("Cake")
+        expect(result[1].item_name).toBe("Soda")
+        expect(result[0].list_id).toBe(list.list_id)
+        expect(result[1].list_id).toBe(list.list_id)
+        const items = await db
+            .select()
+            .from(shoppingItems)
+            .where(eq(shoppingItems.list_id, list.list_id))
+        expect(items.length).toBe(2)
+    })
+
+    it("adds items to main list if list name does not match", async () => {
+        console.log(await db.select().from(shoppingLists))
+
+        await db.insert(shoppingLists).values({
+            chat_id,
+            list_name: "SomeOtherList",
+        })
+        const mainListId = await getMainListId(db, chat_id)
+        const result = await handleAddItemCommand(
+            db,
+            "/add Banana, Apple",
+            chat_id
+        )
+        console.log(result)
+        expect(result).toHaveLength(2)
+        expect(result[0].item_name).toBe("Banana")
+        expect(result[1].item_name).toBe("Apple")
+        expect(result[0].list_id).toBe(mainListId)
+        expect(result[1].list_id).toBe(mainListId)
+        const items = await db
+            .select()
+            .from(shoppingItems)
+            .where(eq(shoppingItems.list_id, mainListId))
+        expect(items.length).toBe(2)
     })
 })
