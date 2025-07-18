@@ -3,14 +3,18 @@ import { eq } from "drizzle-orm"
 import path from "path"
 
 import { migrate } from "drizzle-orm/better-sqlite3/migrator"
+import { ensureProjectRoot } from "tests/ensureProjectRoot"
 import { getTestDb } from "tests/getTestDb"
 
 const migrationsFolder = path.join(process.cwd(), "drizzle")
+
+ensureProjectRoot(migrationsFolder)
 
 describe("integration test with Drizzle migrations", () => {
     let db: any
 
     beforeAll(async () => {
+        ensureProjectRoot
         db = getTestDb()
         await migrate(db, { migrationsFolder })
     })
