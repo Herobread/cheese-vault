@@ -128,9 +128,7 @@ export async function handleAddItemCommand(
         }
     })
 
-    await addItems(db, items, chat_id, list_id)
-
-    return items
+    return await addItems(db, items, chat_id, list_id)
 }
 
 /**
@@ -194,5 +192,5 @@ export async function addItems(
         itemsWithIdPromises
     )
 
-    return await db.insert(shoppingItems).values(itemsWithId).run()
+    return await db.insert(shoppingItems).values(itemsWithId).returning()
 }
