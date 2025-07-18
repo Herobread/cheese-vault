@@ -1,5 +1,6 @@
 import { addItemCommandHandler } from "@/commands/addItemCommand"
 import { addListCommandHandler } from "@/commands/addListCommand"
+import { deleteItemCommandHandler } from "@/commands/deleteItemCommand"
 import { ensureChatData } from "@/commands/ensureChatData"
 import { listCommandHandler } from "@/commands/listCommand"
 import { listListsCommandHandler } from "@/commands/listListsCommand"
@@ -44,6 +45,8 @@ bot.use(async (ctx, next) => {
 bot.command("echo", (ctx) => {
     ctx.sendMessage(`You said: ${ctx.message.text.replace("/echo", "").trim()}`)
 })
+
+bot.command("delete", deleteItemCommandHandler)
 
 bot.command("args", (ctx) => {
     parseTestCommand(ctx)
