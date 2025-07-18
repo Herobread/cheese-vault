@@ -1,6 +1,8 @@
+import { getChatData } from "@/commands/getChatData"
 import { parseCommand } from "@/commands/parser"
 import { db } from "@/db/connection"
 import {
+    chatDatas,
     InsertableShoppingItem,
     shoppingItems,
     shoppingLists,
@@ -125,7 +127,7 @@ export async function handleAddItemCommand(
         list_id,
     }))
 
-    await addItems(db, items)
+    await addItems(db, items, chat_id)
 
     return items
 }
@@ -157,7 +159,34 @@ export async function addItemCommandHandler(
  */
 export async function addItems(
     db: LibSQLDatabase,
-    items: InsertableShoppingItem[]
-) {
-    return await db.insert(shoppingItems).values(items)
+    items: InsertableShoppingItem[],
+    chat_id: number
+): Promise<any> {
+    // Specify return type
+    const chatData = await getChatData(db, chat_id)
+
+    const itemsWithIdPromises: Promise<InsertableShoppingItem>[] = items.map(
+        async (item) => {
+            const item_id = chatData[0].next_id
+
+            // Optimistic update
+            await db
+                .update(chatDatas)
+                .set({ next_id: item_id + 1 })
+                .where(eq(chatDatas.chat_id, chat_id))
+                .run()
+
+            return {
+                item_id: item_id,
+                item_name: item.item_name,
+                list_id: item.list_id,
+            }
+        }
+    )
+
+    const itemsWithId: InsertableShoppingItem[] = await Promise.all(
+        itemsWithIdPromises
+    )
+
+    return await db.insert(shoppingItems).values(itemsWithId).run()
 }
