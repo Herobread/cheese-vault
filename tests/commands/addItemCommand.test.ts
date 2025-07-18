@@ -404,8 +404,6 @@ describe("handleAddItemCommand", () => {
     })
 
     it("adds items to main list if list name does not match", async () => {
-        console.log(await db.select().from(shoppingLists))
-
         await db.insert(shoppingLists).values({
             chat_id,
             list_name: "SomeOtherList",
@@ -416,7 +414,6 @@ describe("handleAddItemCommand", () => {
             "/add Banana, Apple",
             chat_id
         )
-        console.log(result)
         expect(result).toHaveLength(2)
         expect(result[0].item_name).toBe("Banana")
         expect(result[1].item_name).toBe("Apple")
