@@ -5,36 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1752681223963,
-      "tag": "0000_demonic_orphan",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1752708282331,
-      "tag": "0001_rare_doctor_faustus",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1752844045056,
-      "tag": "0002_lyrical_agent_brand",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1752869262291,
-      "tag": "0003_cynical_loki",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "6",
-      "when": 1752870938204,
-      "tag": "0004_real_ben_grimm",
+      "when": 1752872674606,
+      "tag": "0000_loving_imperial_guard",
       "breakpoints": true
     }
   ]
