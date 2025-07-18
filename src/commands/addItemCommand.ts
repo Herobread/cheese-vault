@@ -6,6 +6,7 @@ import {
     shoppingLists,
 } from "@/db/schema"
 import { and, eq } from "drizzle-orm"
+import { LibSQLDatabase } from "drizzle-orm/libsql"
 import { Context } from "telegraf"
 import { Message, Update } from "telegraf/typings/core/types/typegram"
 
@@ -16,7 +17,7 @@ export const MAIN_LIST_IDENTIFIER = "main"
  *
  * @param chat_id
  */
-export async function getMainListId(chat_id: number) {
+export async function getMainListId(db: LibSQLDatabase, chat_id: number) {
     const mainList = await db
         .select()
         .from(shoppingLists)
@@ -63,7 +64,7 @@ export async function extractListIdFromArgs(args: string[], chat_id: number) {
     // only 1 item given - just add to main list
     if (args[0].split(" ").length <= 1) {
         return {
-            list_id: await getMainListId(chat_id),
+            list_id: await getMainListId(db, chat_id),
             rest: args,
         }
     }
@@ -88,7 +89,7 @@ export async function extractListIdFromArgs(args: string[], chat_id: number) {
         }
     } else {
         return {
-            list_id: await getMainListId(chat_id),
+            list_id: await getMainListId(db, chat_id),
             rest: args,
         }
     }
