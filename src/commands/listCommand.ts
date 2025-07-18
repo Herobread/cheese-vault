@@ -23,6 +23,7 @@ export async function listCommandHandler(
             shoppingLists,
             eq(shoppingItems.list_id, shoppingLists.list_id)
         )
+        .where(eq(shoppingLists.chat_id, chat_id))
 
     if (!itemsWithLists.length) {
         return ctx.sendMessage("You have no items in your shopping lists.")

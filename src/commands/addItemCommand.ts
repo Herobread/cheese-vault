@@ -122,12 +122,13 @@ export async function handleAddItemCommand(
     const { list_id, rest } = await extractListIdFromArgs(db, args, chat_id)
     const itemNames = rest
 
-    const items: InsertableShoppingItem[] = itemNames.map((item_name) => ({
-        item_name,
-        list_id,
-    }))
+    const items: SimpleShoppingItem[] = itemNames.map((name) => {
+        return {
+            item_name: name,
+        }
+    })
 
-    await addItems(db, items, chat_id)
+    await addItems(db, items, chat_id, list_id)
 
     return items
 }
@@ -151,6 +152,10 @@ export async function addItemCommandHandler(
     ctx.sendMessage(`Adding ${JSON.stringify(items)}`)
 }
 
+type SimpleShoppingItem = {
+    item_name: string
+}
+
 /**
  * Adds multiple items to the shopping list.
  *
@@ -159,8 +164,9 @@ export async function addItemCommandHandler(
  */
 export async function addItems(
     db: LibSQLDatabase,
-    items: InsertableShoppingItem[],
-    chat_id: number
+    items: SimpleShoppingItem[],
+    chat_id: number,
+    list_id: number
 ): Promise<any> {
     // Specify return type
     const chatData = await getChatData(db, chat_id)
@@ -179,7 +185,7 @@ export async function addItems(
             return {
                 item_id: item_id,
                 item_name: item.item_name,
-                list_id: item.list_id,
+                list_id,
             }
         }
     )
