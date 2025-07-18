@@ -83,4 +83,36 @@ describe("getMainListId", () => {
             .where(eq(shoppingLists.chat_id, chat_id))
         expect(lists.length).toBe(1)
     })
+
+    it("creates separate main lists for different chat_ids", async () => {
+        const id1 = await getMainListId(db, 1)
+        const id2 = await getMainListId(db, 2)
+        expect(id1).not.toBe(id2)
+        const lists = await db.select().from(shoppingLists)
+        expect(lists.length).toBe(2)
+    })
+
+    it("is idempotent: repeated calls don’t create new lists", async () => {
+        const idA = await getMainListId(db, chat_id)
+        const idB = await getMainListId(db, chat_id)
+        expect(idA).toBe(idB)
+        const lists = await db
+            .select()
+            .from(shoppingLists)
+            .where(eq(shoppingLists.chat_id, chat_id))
+        expect(lists.length).toBe(1)
+    })
+
+    it("does not create duplicate main lists under race condition", async () => {
+        const results = await Promise.all([
+            getMainListId(db, chat_id),
+            getMainListId(db, chat_id),
+        ])
+        expect(results[0]).toBe(results[1])
+        const lists = await db
+            .select()
+            .from(shoppingLists)
+            .where(eq(shoppingLists.chat_id, chat_id))
+        expect(lists.length).toBe(1)
+    })
 })

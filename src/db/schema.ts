@@ -2,7 +2,7 @@ import { InferInsertModel, InferSelectModel } from "drizzle-orm"
 import { int, sqliteTable, text } from "drizzle-orm/sqlite-core"
 
 export const shoppingItems = sqliteTable("shopping_items", {
-    item_id: int().primaryKey({ autoIncrement: true }),
+    item_id: int().primaryKey({ autoIncrement: true }).unique(),
     item_name: text().notNull(),
     list_id: int()
         .notNull()
@@ -12,7 +12,7 @@ export const shoppingItems = sqliteTable("shopping_items", {
 })
 
 export const shoppingLists = sqliteTable("shopping_lists", {
-    list_id: int().primaryKey({ autoIncrement: true }),
+    list_id: int().primaryKey({ autoIncrement: true }).unique(),
     list_name: text().notNull(),
     chat_id: int().notNull(),
     message_id: int(),
