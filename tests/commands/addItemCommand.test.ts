@@ -5,14 +5,13 @@ import path from "path"
 import { migrate } from "drizzle-orm/better-sqlite3/migrator"
 import { getTestDb } from "tests/getTestDb"
 
-const migrationsFolder = path.resolve(__dirname, "../../drizzle")
+const migrationsFolder = path.join(process.cwd(), "drizzle")
 
 describe("integration test with Drizzle migrations", () => {
     let db: any
 
     beforeAll(async () => {
         db = getTestDb()
-        console.log("Migrations folder:", migrationsFolder)
         await migrate(db, { migrationsFolder })
     })
 
