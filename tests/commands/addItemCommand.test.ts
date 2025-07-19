@@ -8,7 +8,7 @@ import {
     handleAddItemCommand,
     MAIN_LIST_IDENTIFIER,
 } from "@/commands/addItemCommand"
-import { ensureChatData } from "@/commands/ensureChatData"
+import { getChatData } from "@/commands/getChatData"
 import parseArgs from "@/commands/parser"
 import { BetterSQLite3Database } from "drizzle-orm/better-sqlite3"
 import { migrate } from "drizzle-orm/better-sqlite3/migrator"
@@ -304,7 +304,7 @@ describe("handleAddItemCommand", () => {
     beforeAll(async () => {
         db = getTestDb()
         migrate(db, { migrationsFolder })
-        ensureChatData(db, chat_id)
+        getChatData(db, chat_id)
     })
 
     beforeEach(async () => {
