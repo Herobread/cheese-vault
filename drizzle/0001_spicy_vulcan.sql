@@ -1,0 +1,1 @@
+ALTER TABLE `chat_data` ADD `pinned_message_id` integer;

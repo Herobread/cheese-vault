@@ -22,6 +22,7 @@ export const shoppingLists = sqliteTable("shopping_lists", {
 export const chatDatas = sqliteTable("chat_data", {
     chat_id: int().notNull().primaryKey(),
     next_id: int().notNull().default(1),
+    pinned_message_id: int(),
 })
 
 export type ShoppingItem = InferSelectModel<typeof shoppingItems>
