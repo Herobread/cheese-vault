@@ -1,5 +1,5 @@
 import { db } from "@/db/connection"
-import { shoppingItems, shoppingLists } from "@/db/schema"
+import { chatDatas, shoppingItems, shoppingLists } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import { Context } from "telegraf"
 import { Message, Update } from "telegraf/typings/core/types/typegram"
@@ -62,5 +62,38 @@ export async function listCommandHandler(
         })
     }
 
-    ctx.sendMessage(formattedListsString)
+    const chatData = await db
+        .select()
+        .from(chatDatas)
+        .where(eq(chatDatas.chat_id, chat_id))
+
+    const wasMessagePinnedBefore = chatData[0] && chatData[0].pinned_message_id
+    if (wasMessagePinnedBefore) {
+        const lastPinnedMessageId = chatData[0].pinned_message_id as number
+
+        ctx.unpinChatMessage(lastPinnedMessageId)
+
+        await db
+            .update(chatDatas)
+            .set({ pinned_message_id: null })
+            .where(eq(chatDatas.chat_id, chat_id))
+    }
+
+    const message = await ctx.sendMessage(formattedListsString)
+    const pinned_message_id = message.message_id
+
+    try {
+        await ctx.pinChatMessage(pinned_message_id, {
+            disable_notification: true,
+        })
+
+        await db
+            .update(chatDatas)
+            .set({ pinned_message_id })
+            .where(eq(chatDatas.chat_id, chat_id))
+    } catch (error) {
+        await ctx.sendMessage(
+            "I have no rights to pin message, gimmie admin pls"
+        )
+    }
 }

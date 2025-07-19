@@ -8,6 +8,13 @@
       "when": 1752872674606,
       "tag": "0000_loving_imperial_guard",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1752885331091,
+      "tag": "0001_spicy_vulcan",
+      "breakpoints": true
     }
   ]
 }
