@@ -165,32 +165,29 @@ export async function addItems(
     items: SimpleShoppingItem[],
     chat_id: number,
     list_id: number
-): Promise<any> {
-    // Specify return type
-    const chatData = await getChatData(db, chat_id)
+) {
+    if (items.length === 0) {
+        return []
+    }
 
-    const itemsWithIdPromises: Promise<InsertableShoppingItem>[] = items.map(
-        async (item) => {
-            const item_id = chatData[0].next_id
+    return await db.transaction(async (tx) => {
+        const { next_id } = await getChatData(tx, chat_id)
 
-            // Optimistic update
-            await db
-                .update(chatDatas)
-                .set({ next_id: item_id + 1 })
-                .where(eq(chatDatas.chat_id, chat_id))
-                .run()
-
-            return {
-                item_id: item_id,
+        const itemsWithId: InsertableShoppingItem[] = items.map(
+            (item, index) => ({
+                item_id: next_id + index,
                 item_name: item.item_name,
                 list_id,
-            }
-        }
-    )
+            })
+        )
 
-    const itemsWithId: InsertableShoppingItem[] = await Promise.all(
-        itemsWithIdPromises
-    )
+        const new_next_id = next_id + items.length
 
-    return await db.insert(shoppingItems).values(itemsWithId).returning()
+        await tx
+            .update(chatDatas)
+            .set({ next_id: new_next_id })
+            .where(eq(chatDatas.chat_id, chat_id))
+
+        return await tx.insert(shoppingItems).values(itemsWithId).returning()
+    })
 }

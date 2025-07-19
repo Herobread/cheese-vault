@@ -1,7 +1,7 @@
 import { addItemCommandHandler } from "@/commands/addItemCommand"
 import { addListCommandHandler } from "@/commands/addListCommand"
 import { deleteItemCommandHandler } from "@/commands/deleteItemCommand"
-import { ensureChatData } from "@/commands/ensureChatData"
+import { getChatData } from "@/commands/getChatData"
 import { listCommandHandler } from "@/commands/listCommand"
 import { listListsCommandHandler } from "@/commands/listListsCommand"
 import { db } from "@/db/connection"
@@ -25,7 +25,7 @@ const bot = new Telegraf(token)
 // - log message
 bot.use(async (ctx, next) => {
     if (ctx.chat?.id) {
-        await ensureChatData(db, ctx.chat.id)
+        await getChatData(db, ctx.chat.id)
     } else {
         logger.warn(
             `Recieved update with no chat id. If first call: this might break chat data dependant features for this qeury. ${JSON.stringify(
