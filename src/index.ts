@@ -1,13 +1,20 @@
-import { addItemCommandHandler } from "@/commands/addItemCommand"
+import {
+    addItemCommandHandler,
+    handleAddItemFromArgs,
+} from "@/commands/addItemCommand"
 import { addListCommandHandler } from "@/commands/addListCommand"
 import { deleteItemCommandHandler } from "@/commands/deleteItemCommand"
 import { deleteListCommandHandler } from "@/commands/deleteListCommand"
 import { getChatData } from "@/commands/getChatData"
 import { listCommandHandler } from "@/commands/listCommand"
 import { listListsCommandHandler } from "@/commands/listListsCommand"
+import parseArgs from "@/commands/parser"
 import { db } from "@/db/connection"
+import { chatDatas } from "@/db/schema"
 import "dotenv/config"
+import { eq } from "drizzle-orm"
 import { Telegraf } from "telegraf"
+import { message } from "telegraf/filters"
 import { logger } from "./logger"
 
 const token = process.env.TELEGRAM_API_KEY || ""
@@ -56,6 +63,40 @@ bot.command("addList", addListCommandHandler)
 bot.command("addlist", addListCommandHandler)
 bot.command("deleteList", deleteListCommandHandler)
 bot.command("deletelist", deleteListCommandHandler)
+
+bot.on(message("text"), async (ctx) => {
+    const chat_id = ctx.message.chat.id
+    const messageId = ctx.message.message_id
+    const replyToMessageId = ctx.message.reply_to_message?.message_id
+    const userId = ctx.from.id
+
+    try {
+        const pinnedMessage = await db
+            .select()
+            .from(chatDatas)
+            .where(eq(chatDatas.chat_id, chat_id))
+            .limit(1)
+
+        if (
+            !pinnedMessage ||
+            pinnedMessage[0].pinned_message_id !== replyToMessageId
+        ) {
+            return
+        }
+
+        logger.info(
+            `Message from user ${userId} is a reply to the pinned list in chat ${chat_id}. Adding item.`
+        )
+
+        await handleAddItemFromArgs(
+            db,
+            parseArgs(ctx.update.message.text),
+            chat_id
+        )
+    } catch (error) {
+        // ignore errors if the message is not a reply to the pinned list
+    }
+})
 
 bot.launch()
     .then(() => {
