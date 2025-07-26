@@ -6,6 +6,7 @@ import { addListCommandHandler } from "@/commands/addListCommand"
 import { deleteItemCommandHandler } from "@/commands/deleteItemCommand"
 import { deleteListCommandHandler } from "@/commands/deleteListCommand"
 import { getChatData } from "@/commands/getChatData"
+import { helpCommandHandler } from "@/commands/helpCommand"
 import {
     listCommandHandler,
     updatePinnedMessageContent,
@@ -33,10 +34,10 @@ if (!token) {
 const bot = new Telegraf(token)
 
 // Middleware:
-// - ensure chat data exists for each update
 // - log message
 bot.use(async (ctx, next) => {
     if (ctx.chat?.id) {
+        // - ensure chat data exists for each update
         await getChatData(db, ctx.chat.id)
     } else {
         logger.warn(
@@ -67,6 +68,10 @@ bot.command("addList", addListCommandHandler)
 bot.command("addlist", addListCommandHandler)
 bot.command("deleteList", deleteListCommandHandler)
 bot.command("deletelist", deleteListCommandHandler)
+bot.command("delList", deleteListCommandHandler)
+bot.command("dellist", deleteListCommandHandler)
+
+bot.command("help", helpCommandHandler)
 
 bot.on(message("text"), async (ctx) => {
     const messageText = ctx.update.message.text
