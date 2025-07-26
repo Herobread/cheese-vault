@@ -17,5 +17,5 @@ export async function addListCommandHandler(
         list_name,
     })
 
-    ctx.sendMessage(`Added list ${list_name}`)
+    ctx.sendMessage(`✅ Added list ${list_name}`)
 }
