@@ -142,12 +142,14 @@ export async function addItemCommandHandler(
     const chat_id = ctx.chat.id
     const items = await handleAddItemCommand(db, ctx.message.text, chat_id)
 
-    if (!items) {
-        ctx.sendMessage("No idea what to add, pls type smth after add.")
+    if (items.length === 0) {
+        ctx.sendMessage("❌ Nothing to add.")
         return
     }
 
-    ctx.sendMessage(`Adding ${JSON.stringify(items)}`)
+    ctx.sendMessage(
+        `✅ Added ${items.map((item) => item.item_name).join(", ")}`
+    )
 }
 
 type SimpleShoppingItem = {
