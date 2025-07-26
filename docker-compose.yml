@@ -3,7 +3,7 @@ services:
     build: 
       target: prod
       context: .
-    restart: never
+    restart: unless-stopped
     image: cheese-vault
     env_file:
       - ${ENV_FILE_PATH}
