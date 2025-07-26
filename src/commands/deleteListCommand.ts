@@ -1,4 +1,5 @@
 import { getListIdByName } from "@/commands/getListByName"
+import { updatePinnedMessageContent } from "@/commands/listCommand"
 import { parseCommand } from "@/commands/parser"
 import { db } from "@/db/connection"
 import { shoppingItems, shoppingLists } from "@/db/schema"
@@ -43,4 +44,6 @@ export async function deleteListCommandHandler(
             parse_mode: "MarkdownV2",
         })
     }
+
+    await updatePinnedMessageContent(ctx, db, chat_id)
 }
