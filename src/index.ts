@@ -15,6 +15,7 @@ import { listListsCommandHandler } from "@/commands/listListsCommand"
 import parseArgs from "@/commands/parser"
 import { getRandomPositiveReactionEmoji } from "@/commands/reaction"
 import { resetChat, resetCommandHandler } from "@/commands/resetCommand"
+import { withErrorHandling } from "@/commands/withErrorHandling"
 import { db } from "@/db/connection"
 import { chatDatas } from "@/db/schema"
 import "dotenv/config"
@@ -48,52 +49,21 @@ bot.use(async (ctx, next) => {
         )
     }
 
-    logger.debug(`Update received in chat ${ctx.chat?.id}`, {
-        update: ctx.update,
-    })
-
     return next()
 })
 
-// delete items
-bot.command("delete", deleteItemCommandHandler)
-bot.command("del", deleteItemCommandHandler)
-
-bot.command("reset", resetCommandHandler)
-
-bot.action("reset_confirm", async (ctx) => {
-    if (!ctx.chat) {
-        return
-    }
-    await resetChat(ctx, db, ctx.chat.id)
-    await ctx.editMessageText(
-        "💥 All lists cleared. Create new list with /list"
-    )
-})
-
-bot.action("reset_cancel", async (ctx) => {
-    await ctx.editMessageText("Reset cancelled.\n\n🧀")
-})
-
-// items
-bot.command("add", addItemCommandHandler)
-bot.command("list", listCommandHandler)
-
-// lists
-bot.command("lists", listListsCommandHandler)
-bot.command("addList", addListCommandHandler)
-bot.command("addlist", addListCommandHandler)
-bot.command("deleteList", deleteListCommandHandler)
-bot.command("deletelist", deleteListCommandHandler)
-bot.command("delList", deleteListCommandHandler)
-bot.command("dellist", deleteListCommandHandler)
-
-bot.command("help", helpCommandHandler)
-
-bot.on(message("text"), async (ctx) => {
+bot.on(message("text"), async (ctx, next) => {
     const messageText = ctx.update.message.text
 
-    if (messageText.startsWith("/") || messageText.startsWith(".")) {
+    if (messageText.startsWith("/")) {
+        logger.info(
+            `Chat ${ctx.chat.id}, user: ${ctx.from.id}, command: ${messageText}`
+        )
+
+        return next()
+    }
+
+    if (messageText.startsWith(".")) {
         return
     }
 
@@ -127,6 +97,42 @@ bot.on(message("text"), async (ctx) => {
         // ignore errors if the message is not a reply to the pinned list
     }
 })
+
+// delete items
+bot.command("delete", withErrorHandling(deleteItemCommandHandler))
+bot.command("del", withErrorHandling(deleteItemCommandHandler))
+
+bot.command("reset", withErrorHandling(resetCommandHandler))
+
+bot.action("reset_confirm", async (ctx) => {
+    if (!ctx.chat) {
+        return
+    }
+    await resetChat(ctx, db, ctx.chat.id)
+    await ctx.editMessageText(
+        "💥 All lists cleared. Create new list with /list"
+    )
+})
+
+bot.action("reset_cancel", async (ctx) => {
+    await ctx.editMessageText("Reset cancelled.\n\n🧀")
+})
+
+// items
+bot.command("add", withErrorHandling(addItemCommandHandler))
+bot.command("list", withErrorHandling(listCommandHandler))
+bot.command("ls", withErrorHandling(listCommandHandler))
+
+// lists
+bot.command("lists", withErrorHandling(listListsCommandHandler))
+bot.command("addList", withErrorHandling(addListCommandHandler))
+bot.command("addlist", withErrorHandling(addListCommandHandler))
+bot.command("deleteList", withErrorHandling(deleteListCommandHandler))
+bot.command("deletelist", withErrorHandling(deleteListCommandHandler))
+bot.command("delList", withErrorHandling(deleteListCommandHandler))
+bot.command("dellist", withErrorHandling(deleteListCommandHandler))
+
+bot.command("help", withErrorHandling(helpCommandHandler))
 
 bot.launch()
     .then(() => {
