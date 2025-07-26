@@ -9,12 +9,16 @@ jobs:
     deploy:
         runs-on: self-hosted
 
+        env:
+            ENV_FILE_PATH: /home/herobread/actions-runner/env-vars/.env
+            LOCAL_DB_PATH: /home/herobread/actions-runner/data/local.db
+
         steps:
             - name: Checkout latest code
               uses: actions/checkout@v4
 
             - name: Stop old containers
-              run: docker compose down --env-file /home/herobread/cheese-vault-config/.env.prod down
+              run: docker compose down
 
             - name: Build and restart docker-compose
-              run: docker compose --env-file /home/herobread/cheese-vault-config/.env.prod up -d --build
+              run: docker compose up -d --build
