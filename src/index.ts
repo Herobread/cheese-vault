@@ -14,6 +14,7 @@ import {
 import { listListsCommandHandler } from "@/commands/listListsCommand"
 import parseArgs from "@/commands/parser"
 import { getRandomPositiveReactionEmoji } from "@/commands/reaction"
+import { resetChat, resetCommandHandler } from "@/commands/resetCommand"
 import { db } from "@/db/connection"
 import { chatDatas } from "@/db/schema"
 import "dotenv/config"
@@ -57,6 +58,20 @@ bot.use(async (ctx, next) => {
 // delete items
 bot.command("delete", deleteItemCommandHandler)
 bot.command("del", deleteItemCommandHandler)
+
+bot.command("reset", resetCommandHandler)
+
+bot.action("reset_confirm", async (ctx) => {
+    if (!ctx.chat) {
+        return
+    }
+    await resetChat(ctx, db, ctx.chat.id)
+    await ctx.editMessageText("💥 All lists cleared.")
+})
+
+bot.action("reset_cancel", async (ctx) => {
+    await ctx.editMessageText("Reset cancelled.\n\n🧀")
+})
 
 // items
 bot.command("add", addItemCommandHandler)

@@ -1,0 +1,1 @@
+ALTER TABLE `shopping_items` ADD `chat_id` integer NOT NULL;
