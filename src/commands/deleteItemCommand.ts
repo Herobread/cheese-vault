@@ -1,5 +1,6 @@
 import { updatePinnedMessageContent } from "@/commands/listCommand"
 import { parseCommand } from "@/commands/parser"
+import { getRandomPositiveReactionEmoji } from "@/commands/reaction"
 import { db } from "@/db/connection"
 import { shoppingItems, shoppingLists } from "@/db/schema"
 import { and, eq } from "drizzle-orm"
@@ -42,20 +43,22 @@ export async function deleteItemCommandHandler(
 
     const { args } = parseCommand(ctx.message.text)
 
-    if (!args[0]) {
-        ctx.sendMessage("No id given")
+    // Join args and split by comma, space, or newline
+    const raw = args.join(" ")
+    const ids = raw
+        .split(/[\s,]+/)
+        .map((s) => Number(s))
+        .filter((n) => !isNaN(n))
+
+    if (ids.length === 0) {
+        ctx.react("🤨")
         return
     }
 
-    const itemId = Number(args[0])
-    if (isNaN(itemId)) {
-        ctx.sendMessage("Invalid id: please provide a number")
-        return
+    for (const itemId of ids) {
+        await deleteItem(db, itemId, chat_id)
+        ctx.react(getRandomPositiveReactionEmoji())
     }
-
-    await deleteItem(db, itemId, chat_id)
 
     await updatePinnedMessageContent(ctx, db, chat_id)
-
-    ctx.react("👌")
 }
