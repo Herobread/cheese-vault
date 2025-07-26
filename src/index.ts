@@ -110,6 +110,7 @@ bot.on(message("text"), async (ctx) => {
 
         if (
             !pinnedMessage ||
+            !pinnedMessage[0] ||
             pinnedMessage[0].pinned_message_id !== replyToMessageId
         ) {
             return
