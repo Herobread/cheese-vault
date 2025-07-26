@@ -3,6 +3,7 @@ import { int, sqliteTable, text } from "drizzle-orm/sqlite-core"
 
 export const shoppingItems = sqliteTable("shopping_items", {
     uid: int().primaryKey({ autoIncrement: true }).unique(),
+    chat_id: int().notNull(),
     item_id: int().notNull(),
     item_name: text().notNull(),
     list_id: int()

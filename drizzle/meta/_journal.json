@@ -15,6 +15,13 @@
       "when": 1752885331091,
       "tag": "0001_spicy_vulcan",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1753530537920,
+      "tag": "0002_familiar_hobgoblin",
+      "breakpoints": true
     }
   ]
 }

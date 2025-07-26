@@ -195,6 +195,7 @@ export async function addItems(
 
         const itemsWithId: InsertableShoppingItem[] = items.map(
             (item, index) => ({
+                chat_id,
                 item_id: next_id + index,
                 item_name: item.item_name,
                 list_id,

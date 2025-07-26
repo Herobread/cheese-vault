@@ -10,23 +10,19 @@ export async function getFormattedChatLists(
     db: LibSQLDatabase,
     chat_id: number
 ) {
-    const itemsWithLists = await db
-        .select({
-            itemId: shoppingItems.item_id,
-            itemName: shoppingItems.item_name,
-            listId: shoppingItems.list_id,
-            listName: shoppingLists.list_name,
-        })
-        .from(shoppingItems)
-        .leftJoin(
-            shoppingLists,
-            eq(shoppingItems.list_id, shoppingLists.list_id)
-        )
+    const allListsInChat = await db
+        .select()
+        .from(shoppingLists)
         .where(eq(shoppingLists.chat_id, chat_id))
 
-    if (!itemsWithLists.length) {
+    if (!allListsInChat.length) {
         return []
     }
+
+    const allItemsInChat = await db
+        .select()
+        .from(shoppingItems)
+        .where(eq(shoppingItems.chat_id, chat_id))
 
     const itemsByList: Record<
         number,
@@ -36,17 +32,20 @@ export async function getFormattedChatLists(
         }
     > = {}
 
-    for (const item of itemsWithLists) {
-        if (!itemsByList[item.listId]) {
-            itemsByList[item.listId] = {
-                listName: item.listName,
-                items: [],
-            }
+    for (const list of allListsInChat) {
+        itemsByList[list.list_id] = {
+            listName: list.list_name,
+            items: [],
         }
-        itemsByList[item.listId].items.push({
-            itemId: item.itemId,
-            itemName: item.itemName,
-        })
+    }
+
+    for (const item of allItemsInChat) {
+        if (itemsByList[item.list_id]) {
+            itemsByList[item.list_id].items.push({
+                itemId: item.item_id,
+                itemName: item.item_name,
+            })
+        }
     }
 
     return Object.entries(itemsByList).map(([listId, listData]) => ({
@@ -58,14 +57,22 @@ export async function getFormattedChatLists(
 function formatListsToString(
     lists: Awaited<ReturnType<typeof getFormattedChatLists>>
 ) {
+    if (!lists.length) {
+        return `🕸 Empty here\\.\\.\\.\n\nAdd stuff with \`/add\` \`<item>\` or reply to this message`
+    }
+
     let formattedListsString = ""
 
     for (const list of lists) {
         formattedListsString += `🗒 *List*: \`${list.name}\`\n\n`
 
-        list.items.forEach((item) => {
-            formattedListsString += `\`${item.itemId}\` ${item.itemName}\n`
-        })
+        if (list.items.length > 0) {
+            list.items.forEach((item) => {
+                formattedListsString += `\`${item.itemId}\` ${item.itemName}\n`
+            })
+        } else {
+            formattedListsString += `_This list is empty_\\.\n`
+        }
 
         formattedListsString += `\n\n`
     }
@@ -125,10 +132,6 @@ export async function listCommandHandler(
     const chat_id = ctx.chat.id
 
     const lists = await getFormattedChatLists(db, chat_id)
-
-    if (!lists.length) {
-        return ctx.sendMessage("You have no items in your shopping lists.")
-    }
 
     const formattedListsString = formatListsToString(lists)
 
