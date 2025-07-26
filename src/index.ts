@@ -1,6 +1,7 @@
 import { addItemCommandHandler } from "@/commands/addItemCommand"
 import { addListCommandHandler } from "@/commands/addListCommand"
 import { deleteItemCommandHandler } from "@/commands/deleteItemCommand"
+import { deleteListCommandHandler } from "@/commands/deleteListCommand"
 import { getChatData } from "@/commands/getChatData"
 import { listCommandHandler } from "@/commands/listCommand"
 import { listListsCommandHandler } from "@/commands/listListsCommand"
@@ -51,7 +52,10 @@ bot.command("list", listCommandHandler)
 
 // lists
 bot.command("lists", listListsCommandHandler)
+bot.command("addList", addListCommandHandler)
 bot.command("addlist", addListCommandHandler)
+bot.command("deleteList", deleteListCommandHandler)
+bot.command("deletelist", deleteListCommandHandler)
 
 bot.launch()
     .then(() => {
