@@ -11,14 +11,19 @@ RUN curl -fsSL https://bun.sh/install | bash && \
 COPY package*.json ./
 RUN bun install
 
+# Install TypeScript globally (needed for build)
+RUN bun add -g typescript
+
 # Copy source code
 COPY . .
+
+# Make scripts executable
+RUN chmod +x ./db_setup.sh
 
 # --- Dev stage ---
 FROM base AS dev
 
 # Entrypoint for development, with Bun watch mode
-# This will watch all files in src/ and restart src/index.ts on changes
 CMD [ "bun", "--watch", "src", "src/index.ts" ]
 
 # --- Prod stage ---

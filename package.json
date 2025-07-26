@@ -3,8 +3,8 @@
     "version": "1.0.0",
     "main": "index.js",
     "scripts": {
-        "build": "tsup src/index.ts --format cjs --out-dir dist",
-        "start": "node -r tsconfig-paths/register dist/index.js",
+        "build": "bun build src/index.ts --outdir dist --target node",
+        "start": "bun run dist/index.js",
         "dev": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build",
         "studio": "bunx drizzle-kit studio --config src/drizzle.config.ts",
         "generate": "bunx drizzle-kit generate --config src/drizzle.config.ts",
