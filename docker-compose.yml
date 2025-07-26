@@ -1,11 +1,11 @@
 services:
   app:
-    build: .
-    restart: always
+    build: 
+      target: prod
+      context: .
+    restart: never
     image: cheese-vault
     env_file:
-      - /home/herobread/actions-runner/env-vars/.env
-    ports:
-      - "3000:3000"
+      - ${ENV_FILE_PATH}
     volumes:
-      - /home/herobread/actions-runner/data/local.db:/usr/src/app/local.db
+      - ${LOCAL_DB_PATH}:/usr/src/app/local.db:Z

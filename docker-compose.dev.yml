@@ -1,0 +1,11 @@
+services:
+  app:
+    build:
+      context: .
+      target: dev
+    volumes:
+      - ./src:/usr/src/app/src:Z
+      - ${LOCAL_DB_PATH}:/usr/src/app/local.db:Z
+    command: sh -c "bun tsc --noEmit --watch --preserveWatchOutput & bun --watch src/index.ts"
+    env_file:
+      - ${ENV_FILE_PATH}
