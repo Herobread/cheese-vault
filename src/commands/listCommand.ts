@@ -131,7 +131,7 @@ export function trimMessageAndAddInfo(message: string) {
     const TELEGRAM_MAX_MESSAGE_LENGTH = 4096
 
     if (message.length > TELEGRAM_MAX_MESSAGE_LENGTH) {
-        const OVERFLOW_TEXT = "\\.\\.\\.\n\nList is too long for telegram!"
+        const OVERFLOW_TEXT = "\\.\\.\\.\n\nList is too long for telegram\\!"
 
         message = message.slice(
             0,
