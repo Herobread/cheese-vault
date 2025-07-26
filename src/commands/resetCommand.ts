@@ -1,4 +1,9 @@
 import { getChatData } from "@/commands/getChatData"
+import {
+    formatListsToString,
+    getFormattedChatLists,
+    trimMessageAndAddInfo,
+} from "@/commands/listCommand"
 import { chatDatas, shoppingItems, shoppingLists } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import { LibSQLDatabase } from "drizzle-orm/libsql"
@@ -22,10 +27,22 @@ export async function resetChat(
     db: LibSQLDatabase,
     chat_id: number
 ) {
-    const chatData = await getChatData(db, chat_id)
+    const { pinned_message_id } = await getChatData(db, chat_id)
 
-    if (chatData.pinned_message_id) {
-        await ctx.telegram.unpinChatMessage(chat_id, chatData.pinned_message_id)
+    if (pinned_message_id) {
+        const archivedMessage =
+            "📚 *Archived*:\n\n" +
+            formatListsToString(await getFormattedChatLists(db, chat_id))
+        const { message } = trimMessageAndAddInfo(archivedMessage)
+
+        await ctx.telegram.editMessageText(
+            chat_id,
+            pinned_message_id,
+            undefined,
+            message,
+            { parse_mode: "MarkdownV2" }
+        )
+        await ctx.telegram.unpinChatMessage(chat_id, pinned_message_id)
     }
 
     await resetChatData(db, chat_id)

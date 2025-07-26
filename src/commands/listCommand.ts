@@ -55,7 +55,7 @@ export async function getFormattedChatLists(
     }))
 }
 
-function formatListsToString(
+export function formatListsToString(
     lists: Awaited<ReturnType<typeof getFormattedChatLists>>
 ) {
     if (!lists.length) {
