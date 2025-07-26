@@ -34,7 +34,12 @@ describe("integration test with Drizzle migrations", () => {
             .returning()
         const [item] = await db
             .insert(shoppingItems)
-            .values({ item_name: "Milk", list_id: list.list_id, item_id: 1 })
+            .values({
+                chat_id: 12345,
+                item_name: "Milk",
+                list_id: list.list_id,
+                item_id: 1,
+            })
             .returning()
         const items = await db
             .select()
