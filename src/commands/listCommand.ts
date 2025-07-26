@@ -54,6 +54,23 @@ export async function getFormattedChatLists(
     }))
 }
 
+function formatListsToString(
+    lists: Awaited<ReturnType<typeof getFormattedChatLists>>
+) {
+    let formattedListsString = ""
+
+    for (const list of lists) {
+        formattedListsString += `🗒 List: \`${list.name}\`\n\n`
+
+        list.items.forEach((item) => {
+            formattedListsString += `\`${item.itemId}\` ${item.itemName}\n`
+        })
+
+        formattedListsString += `\n\n`
+    }
+    return formattedListsString
+}
+
 async function sendAndPinMessage(
     ctx: Context<Update.MessageUpdate<Message.TextMessage>>,
     chat_id: number,
@@ -112,17 +129,7 @@ export async function listCommandHandler(
         return ctx.sendMessage("You have no items in your shopping lists.")
     }
 
-    let formattedListsString = ""
-
-    for (const list of lists) {
-        formattedListsString += `🗒 List: \`${list.name}\`\n\n`
-
-        list.items.forEach((item) => {
-            formattedListsString += `\`${item.itemId}\` ${item.itemName}\n`
-        })
-
-        formattedListsString += `\n\n`
-    }
+    const formattedListsString = formatListsToString(lists)
 
     await sendAndPinMessage(ctx, chat_id, formattedListsString)
 }

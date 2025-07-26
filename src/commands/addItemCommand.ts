@@ -102,19 +102,18 @@ export async function extractListIdFromArgs(
 }
 
 /**
- * Main logic for adding items to a shopping list.
+ * Logic for adding items from command arguments.
  *
- * @param messageText The text of the message.
- * @param chat_id The ID of the chat where the command was issued.
+ * @param db The database instance.
+ * @param args The arguments from the command.
+ * @param chat_id The ID of the chat.
  * @returns The items that were added.
  */
-export async function handleAddItemCommand(
+export async function handleAddItemFromArgs(
     db: LibSQLDatabase,
-    messageText: string,
+    args: string[],
     chat_id: number
 ) {
-    const { args } = parseCommand(messageText)
-
     if (args.length == 0) {
         return []
     }
@@ -129,6 +128,22 @@ export async function handleAddItemCommand(
     })
 
     return await addItems(db, items, chat_id, list_id)
+}
+
+/**
+ * Main logic for adding items to a shopping list.
+ *
+ * @param messageText The text of the message.
+ * @param chat_id The ID of the chat where the command was issued.
+ * @returns The items that were added.
+ */
+export async function handleAddItemCommand(
+    db: LibSQLDatabase,
+    messageText: string,
+    chat_id: number
+) {
+    const { args } = parseCommand(messageText)
+    return await handleAddItemFromArgs(db, args, chat_id)
 }
 
 /**
