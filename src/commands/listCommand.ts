@@ -1,3 +1,4 @@
+import { getChatData } from "@/commands/getChatData"
 import { db } from "@/db/connection"
 import { chatDatas, shoppingItems, shoppingLists } from "@/db/schema"
 import { eq } from "drizzle-orm"
@@ -49,7 +50,7 @@ export async function getFormattedChatLists(
     }
 
     return Object.entries(itemsByList).map(([listId, listData]) => ({
-        name: listData.listName || `List ${listId}`,
+        name: listData.listName || `list_id[${listId}]`,
         items: listData.items,
     }))
 }
@@ -60,7 +61,7 @@ function formatListsToString(
     let formattedListsString = ""
 
     for (const list of lists) {
-        formattedListsString += `🗒 List: \`${list.name}\`\n\n`
+        formattedListsString += `🗒 *List*: \`${list.name}\`\n\n`
 
         list.items.forEach((item) => {
             formattedListsString += `\`${item.itemId}\` ${item.itemName}\n`
@@ -132,4 +133,41 @@ export async function listCommandHandler(
     const formattedListsString = formatListsToString(lists)
 
     await sendAndPinMessage(ctx, chat_id, formattedListsString)
+}
+
+export async function updatePinnedMessageContent(
+    ctx: Context<Update.MessageUpdate<Message.TextMessage>>,
+    db: LibSQLDatabase,
+    chat_id: number
+) {
+    const lists = await getFormattedChatLists(db, chat_id)
+
+    if (!lists.length) {
+        return
+    }
+
+    const formattedListsString = formatListsToString(lists)
+
+    const { pinned_message_id } = await getChatData(db, chat_id)
+
+    if (!pinned_message_id) {
+        return
+    }
+
+    try {
+        await ctx.telegram.editMessageText(
+            chat_id,
+            pinned_message_id,
+            undefined,
+            formattedListsString,
+            {
+                parse_mode: "MarkdownV2",
+            }
+        )
+    } catch (error) {
+        console.error(
+            `Failed to update pinned message in chat ${chat_id}:`,
+            error
+        )
+    }
 }

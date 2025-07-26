@@ -1,3 +1,4 @@
+import { updatePinnedMessageContent } from "@/commands/listCommand"
 import { parseCommand } from "@/commands/parser"
 import { db } from "@/db/connection"
 import { shoppingItems, shoppingLists } from "@/db/schema"
@@ -54,5 +55,7 @@ export async function deleteItemCommandHandler(
 
     await deleteItem(db, itemId, chat_id)
 
-    ctx.sendMessage("Maybe deleted")
+    await updatePinnedMessageContent(ctx, db, chat_id)
+
+    ctx.react("👌")
 }

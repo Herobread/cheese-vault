@@ -1,4 +1,5 @@
 import { getChatData } from "@/commands/getChatData"
+import { updatePinnedMessageContent } from "@/commands/listCommand"
 import { parseCommand } from "@/commands/parser"
 import { db } from "@/db/connection"
 import {
@@ -165,6 +166,8 @@ export async function addItemCommandHandler(
     ctx.sendMessage(
         `✅ Added ${items.map((item) => item.item_name).join(", ")}`
     )
+
+    await updatePinnedMessageContent(ctx, db, chat_id)
 }
 
 type SimpleShoppingItem = {

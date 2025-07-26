@@ -6,9 +6,13 @@ import { addListCommandHandler } from "@/commands/addListCommand"
 import { deleteItemCommandHandler } from "@/commands/deleteItemCommand"
 import { deleteListCommandHandler } from "@/commands/deleteListCommand"
 import { getChatData } from "@/commands/getChatData"
-import { listCommandHandler } from "@/commands/listCommand"
+import {
+    listCommandHandler,
+    updatePinnedMessageContent,
+} from "@/commands/listCommand"
 import { listListsCommandHandler } from "@/commands/listListsCommand"
 import parseArgs from "@/commands/parser"
+import { getRandomPositiveReactionEmoji } from "@/commands/reaction"
 import { db } from "@/db/connection"
 import { chatDatas } from "@/db/schema"
 import "dotenv/config"
@@ -65,8 +69,13 @@ bot.command("deleteList", deleteListCommandHandler)
 bot.command("deletelist", deleteListCommandHandler)
 
 bot.on(message("text"), async (ctx) => {
+    const messageText = ctx.update.message.text
+
+    if (messageText.startsWith("/") || messageText.startsWith(".")) {
+        return
+    }
+
     const chat_id = ctx.message.chat.id
-    const messageId = ctx.message.message_id
     const replyToMessageId = ctx.message.reply_to_message?.message_id
     const userId = ctx.from.id
 
@@ -88,11 +97,9 @@ bot.on(message("text"), async (ctx) => {
             `Message from user ${userId} is a reply to the pinned list in chat ${chat_id}. Adding item.`
         )
 
-        await handleAddItemFromArgs(
-            db,
-            parseArgs(ctx.update.message.text),
-            chat_id
-        )
+        await handleAddItemFromArgs(db, parseArgs(messageText), chat_id)
+        await updatePinnedMessageContent(ctx, db, chat_id)
+        ctx.react(getRandomPositiveReactionEmoji())
     } catch (error) {
         // ignore errors if the message is not a reply to the pinned list
     }
