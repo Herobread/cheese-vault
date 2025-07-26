@@ -66,7 +66,9 @@ bot.action("reset_confirm", async (ctx) => {
         return
     }
     await resetChat(ctx, db, ctx.chat.id)
-    await ctx.editMessageText("💥 All lists cleared.")
+    await ctx.editMessageText(
+        "💥 All lists cleared. Create new list with /list"
+    )
 })
 
 bot.action("reset_cancel", async (ctx) => {
