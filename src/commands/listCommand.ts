@@ -1,6 +1,7 @@
 import { getChatData } from "@/commands/getChatData"
 import { db } from "@/db/connection"
 import { chatDatas, shoppingItems, shoppingLists } from "@/db/schema"
+import { logger } from "@/logger"
 import { eq } from "drizzle-orm"
 import { LibSQLDatabase } from "drizzle-orm/libsql"
 import { Context } from "telegraf"
@@ -96,7 +97,7 @@ async function sendAndPinMessage(
         try {
             await ctx.unpinChatMessage(lastPinnedMessageId)
         } catch (error) {
-            console.error(
+            logger.error(
                 `Could not unpin message in chat ${chat_id}. Maybe it was already unpinned or deleted.`
             )
         }
@@ -126,6 +127,30 @@ async function sendAndPinMessage(
     }
 }
 
+export function trimMessageAndAddInfo(message: string) {
+    const TELEGRAM_MAX_MESSAGE_LENGTH = 4096
+
+    if (message.length > TELEGRAM_MAX_MESSAGE_LENGTH) {
+        const OVERFLOW_TEXT = "\\.\\.\\.\n\nList is too long for telegram!"
+
+        message = message.slice(
+            0,
+            TELEGRAM_MAX_MESSAGE_LENGTH - OVERFLOW_TEXT.length - 1
+        )
+        message += OVERFLOW_TEXT
+
+        return {
+            trimmed: true,
+            message,
+        }
+    }
+
+    return {
+        trimmed: false,
+        message,
+    }
+}
+
 export async function listCommandHandler(
     ctx: Context<Update.MessageUpdate<Message.TextMessage>>
 ) {
@@ -133,9 +158,16 @@ export async function listCommandHandler(
 
     const lists = await getFormattedChatLists(db, chat_id)
 
-    const formattedListsString = formatListsToString(lists)
+    let formattedListsString = formatListsToString(lists)
 
-    await sendAndPinMessage(ctx, chat_id, formattedListsString)
+    const { message: trimmedList, trimmed } =
+        trimMessageAndAddInfo(formattedListsString)
+
+    if (trimmed) {
+        logger.warn(`Message is too long to send in chat ${chat_id}`)
+    }
+
+    await sendAndPinMessage(ctx, chat_id, trimmedList)
 }
 
 export async function updatePinnedMessageContent(
@@ -168,7 +200,7 @@ export async function updatePinnedMessageContent(
             }
         )
     } catch (error) {
-        console.error(
+        logger.error(
             `Failed to update pinned message in chat ${chat_id}:`,
             error
         )
