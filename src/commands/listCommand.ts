@@ -1,16 +1,14 @@
 import { db } from "@/db/connection"
 import { chatDatas, shoppingItems, shoppingLists } from "@/db/schema"
 import { eq } from "drizzle-orm"
+import { LibSQLDatabase } from "drizzle-orm/libsql"
 import { Context } from "telegraf"
 import { Message, Update } from "telegraf/typings/core/types/typegram"
 
-export function generateListMessage() {}
-
-export async function listCommandHandler(
-    ctx: Context<Update.MessageUpdate<Message.TextMessage>>
+export async function getFormattedChatLists(
+    db: LibSQLDatabase,
+    chat_id: number
 ) {
-    const chat_id = ctx.chat.id
-
     const itemsWithLists = await db
         .select({
             itemId: shoppingItems.item_id,
@@ -26,7 +24,7 @@ export async function listCommandHandler(
         .where(eq(shoppingLists.chat_id, chat_id))
 
     if (!itemsWithLists.length) {
-        return ctx.sendMessage("You have no items in your shopping lists.")
+        return []
     }
 
     const itemsByList: Record<
@@ -50,18 +48,17 @@ export async function listCommandHandler(
         })
     }
 
-    let formattedListsString = "Items:\n"
+    return Object.entries(itemsByList).map(([listId, listData]) => ({
+        name: listData.listName || `List ${listId}`,
+        items: listData.items,
+    }))
+}
 
-    for (const listId in itemsByList) {
-        const list = itemsByList[listId]
-        const listName = list.listName || `List ${listId}`
-        formattedListsString += `\n--- ${listName} ---\n`
-
-        list.items.forEach((item) => {
-            formattedListsString += `[${item.itemId}] ${item.itemName}\n`
-        })
-    }
-
+async function sendAndPinMessage(
+    ctx: Context<Update.MessageUpdate<Message.TextMessage>>,
+    chat_id: number,
+    text: string
+) {
     const chatData = await db
         .select()
         .from(chatDatas)
@@ -71,7 +68,13 @@ export async function listCommandHandler(
     if (wasMessagePinnedBefore) {
         const lastPinnedMessageId = chatData[0].pinned_message_id as number
 
-        ctx.unpinChatMessage(lastPinnedMessageId)
+        try {
+            await ctx.unpinChatMessage(lastPinnedMessageId)
+        } catch (error) {
+            console.error(
+                `Could not unpin message in chat ${chat_id}. Maybe it was already unpinned or deleted.`
+            )
+        }
 
         await db
             .update(chatDatas)
@@ -79,7 +82,7 @@ export async function listCommandHandler(
             .where(eq(chatDatas.chat_id, chat_id))
     }
 
-    const message = await ctx.sendMessage(formattedListsString)
+    const message = await ctx.sendMessage(text, { parse_mode: "MarkdownV2" })
     const pinned_message_id = message.message_id
 
     try {
@@ -93,7 +96,33 @@ export async function listCommandHandler(
             .where(eq(chatDatas.chat_id, chat_id))
     } catch (error) {
         await ctx.sendMessage(
-            "I have no rights to pin message, gimmie admin pls"
+            "😩 I have no rights to pin message, gimmie admin pls"
         )
     }
+}
+
+export async function listCommandHandler(
+    ctx: Context<Update.MessageUpdate<Message.TextMessage>>
+) {
+    const chat_id = ctx.chat.id
+
+    const lists = await getFormattedChatLists(db, chat_id)
+
+    if (!lists.length) {
+        return ctx.sendMessage("You have no items in your shopping lists.")
+    }
+
+    let formattedListsString = ""
+
+    for (const list of lists) {
+        formattedListsString += `🗒 List: \`${list.name}\`\n\n`
+
+        list.items.forEach((item) => {
+            formattedListsString += `\`${item.itemId}\` ${item.itemName}\n`
+        })
+
+        formattedListsString += `\n\n`
+    }
+
+    await sendAndPinMessage(ctx, chat_id, formattedListsString)
 }
