@@ -182,10 +182,6 @@ export async function updatePinnedMessageContent(
 ) {
     const lists = await getFormattedChatLists(db, chat_id)
 
-    if (!lists.length) {
-        return
-    }
-
     const formattedListsString = formatListsToString(lists)
 
     const { pinned_message_id } = await getChatData(db, chat_id)
