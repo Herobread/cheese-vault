@@ -6,6 +6,14 @@ import { and, eq } from "drizzle-orm"
 import { Context } from "telegraf"
 import { Message, Update } from "telegraf/typings/core/types/typegram"
 
+export function generateListId(potentialName: string): string {
+    // Check if the name is a single numeric word
+    if (/^\d+$/.test(potentialName)) {
+        return `list-${potentialName}`
+    }
+    return potentialName.replace(/ /g, "-").toLowerCase()
+}
+
 export async function addListCommandHandler(
     ctx: Context<Update.MessageUpdate<Message.TextMessage>>
 ) {
@@ -16,13 +24,7 @@ export async function addListCommandHandler(
         return
     }
 
-    const potentialName = args.join(" ")
-    let list_name: string
-    if (/^\d+$/.test(potentialName) && args.length === 1) {
-        list_name = `list-${potentialName}`
-    } else {
-        list_name = potentialName.replace(/ /g, "-").toLowerCase()
-    }
+    const list_name = generateListId(args.join(" "))
     const chat_id = ctx.chat.id
 
     const existingList = await db

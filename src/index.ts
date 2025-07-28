@@ -14,6 +14,7 @@ import {
 import { listListsCommandHandler } from "@/commands/listListsCommand"
 import parseArgs from "@/commands/parser"
 import { getRandomPositiveReactionEmoji } from "@/commands/reaction"
+import { renameItemCommandHandler } from "@/commands/renameCommand"
 import { resetChat, resetCommandHandler } from "@/commands/resetCommand"
 import { withErrorHandling } from "@/commands/withErrorHandling"
 import { db } from "@/db/connection"
@@ -101,6 +102,11 @@ bot.on(message("text"), async (ctx, next) => {
 // delete items
 bot.command("delete", withErrorHandling(deleteItemCommandHandler))
 bot.command("del", withErrorHandling(deleteItemCommandHandler))
+
+// rename
+bot.command("rename", withErrorHandling(renameItemCommandHandler))
+bot.command("replace", withErrorHandling(renameItemCommandHandler))
+bot.command("re", withErrorHandling(renameItemCommandHandler))
 
 bot.command("reset", withErrorHandling(resetCommandHandler))
 
