@@ -16,7 +16,13 @@ export async function addListCommandHandler(
         return
     }
 
-    const list_name = args.join("-").replace(/ /g, "-").toLowerCase()
+    const potentialName = args.join(" ")
+    let list_name: string
+    if (/^\d+$/.test(potentialName) && args.length === 1) {
+        list_name = `list-${potentialName}`
+    } else {
+        list_name = potentialName.replace(/ /g, "-").toLowerCase()
+    }
     const chat_id = ctx.chat.id
 
     const existingList = await db
