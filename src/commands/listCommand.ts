@@ -55,6 +55,10 @@ export async function getFormattedChatLists(
     }))
 }
 
+export function escapeMarkdownV2(text: string): string {
+    return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, "\\$&")
+}
+
 export function formatListsToString(
     lists: Awaited<ReturnType<typeof getFormattedChatLists>>
 ) {
@@ -69,7 +73,8 @@ export function formatListsToString(
 
         if (list.items.length > 0) {
             list.items.forEach((item) => {
-                formattedListsString += `\`${item.itemId}\` ${item.itemName}\n`
+                const escapedItemName = escapeMarkdownV2(item.itemName)
+                formattedListsString += `\`${item.itemId}\` ${escapedItemName}\n`
             })
         } else {
             formattedListsString += `_This list is empty_\\.\n`
