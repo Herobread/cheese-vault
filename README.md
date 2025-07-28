@@ -1,23 +1,51 @@
-Simple telegram bot that will be hosted on mini pc to explore CI/CD pipelines and to have some fun.
+# cheese-vault
 
-## Setup
+A Telegram bot project for experimenting with deployment, CI/CD, and DevOps.  
+Runs on Ubuntu (Intel NUC 5) and uses Docker, Drizzle ORM, and Bun.
 
-1. create .env file with fields that are in .env.example; add your telegram bot key
-2. Set up db using ./db_setup.sh
-3. run dev server:
+Bot: [@cheese_vault_bot](https://t.me/cheese_vault_bot)  
+*(Note: This is a personal project and not always be available.)*
 
-```
-bun run dev
-```
+---
 
-## DB
+## Features
 
-update changes from schema to db file:
+- Telegram bot written in TypeScript
+- CI/CD pipeline
+- Dockerized development & production
+- Runs on low-power hardware
+- Uses Drizzle ORM and Bun runtime
+
+---
+
+## Getting Started
+
+1. Clone the repo:
+    ```bash
+    git clone https://github.com/Herobread/cheese-vault.git
+    cd cheese-vault
+    ```
+
+2. Copy `.env.example` to `.env` and fill in your Telegram bot key.
+
+3. Start the dev server:
+    ```bash
+    bun run dev
+    ```
+
+---
+
+## Database
+
+To update the DB schema:
 
 ```bash
 bunx drizzle-kit generate --config src/drizzle.config.ts
-```
-
-```bash
 bunx drizzle-kit push --config src/drizzle.config.ts
 ```
+
+---
+
+## License
+
+MIT
