@@ -12,13 +12,14 @@ Here are the commands you can use:
 \`/add\` \`<item name>\`
 you can also add list name before item name to add it to specific list
 \`/add\` \`<list name>\` \`<item name>\`
-
+\`/rename\` \`<item id>\` \`<new name>\` \\- Rename an item
 \`/delete\` \`<item id>\` or \`/del\` \`<item id>\` \\- Delete an item
 
 *🗒️ List Management*
 \`/list\` \\- show all items
 \`/lists\` \\- show lists
 \`/addList\` \`<list name>\` \\- create a list \\(no spaces\\!\\)
+\`/rename\` \`<list name>\` \`<new name>\` \\- Rename a list
 \`/deleteList\` \`<list name>\` \\- delete a shopping list and all its items
     
 *💡 Pro Tip*
