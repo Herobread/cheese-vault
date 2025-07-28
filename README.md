@@ -6,6 +6,8 @@ Runs on Ubuntu (Intel NUC 5) and uses Docker, Drizzle ORM, and Bun.
 Bot: [@cheese_vault_bot](https://t.me/cheese_vault_bot)  
 *(Note: This is a personal project and not always be available.)*
 
+<img width="1280" height="960" alt="intel nuc 5" src="https://github.com/user-attachments/assets/f4b51e65-3cc5-458b-a2a6-f943749d7b27" />
+
 ---
 
 ## Features
@@ -15,6 +17,9 @@ Bot: [@cheese_vault_bot](https://t.me/cheese_vault_bot)
 - Dockerized development & production
 - Runs on low-power hardware
 - Uses Drizzle ORM and Bun runtime
+
+<img width="488" height="950" alt="image" src="https://github.com/user-attachments/assets/991b3440-70df-4d00-9193-39293dfc13d3" />
+
 
 ---
 
