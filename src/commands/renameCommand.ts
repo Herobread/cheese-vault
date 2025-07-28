@@ -1,4 +1,5 @@
 import { generateListId } from "@/commands/addListCommand"
+import { getListIdByName } from "@/commands/getListByName"
 import { updatePinnedMessageContent } from "@/commands/listCommand"
 import { parseCommand } from "@/commands/parser"
 import { getRandomPositiveReactionEmoji } from "@/commands/reaction"
@@ -76,6 +77,12 @@ async function renameList(
     newName: string
 ): Promise<boolean> {
     newName = generateListId(newName)
+
+    const sameNameList = await getListIdByName(db, newName, chat_id)
+
+    if (sameNameList) {
+        return false
+    }
 
     const result = await db
         .update(shoppingLists)
