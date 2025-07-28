@@ -3,8 +3,7 @@ import {
     handleAddItemFromArgs,
 } from "@/commands/addItemCommand"
 import { addListCommandHandler } from "@/commands/addListCommand"
-import { deleteItemCommandHandler } from "@/commands/deleteItemCommand"
-import { deleteListCommandHandler } from "@/commands/deleteListCommand"
+import { deleteCommandHandler } from "@/commands/deleteCommand"
 import { getChatData } from "@/commands/getChatData"
 import { helpCommandHandler } from "@/commands/helpCommand"
 import {
@@ -99,9 +98,9 @@ bot.on(message("text"), async (ctx, next) => {
     }
 })
 
-// delete items
-bot.command("delete", withErrorHandling(deleteItemCommandHandler))
-bot.command("del", withErrorHandling(deleteItemCommandHandler))
+// delete items or lists
+bot.command("delete", withErrorHandling(deleteCommandHandler))
+bot.command("del", withErrorHandling(deleteCommandHandler))
 
 // rename
 bot.command("rename", withErrorHandling(renameItemCommandHandler))
@@ -133,10 +132,6 @@ bot.command("ls", withErrorHandling(listCommandHandler))
 bot.command("lists", withErrorHandling(listListsCommandHandler))
 bot.command("addList", withErrorHandling(addListCommandHandler))
 bot.command("addlist", withErrorHandling(addListCommandHandler))
-bot.command("deleteList", withErrorHandling(deleteListCommandHandler))
-bot.command("deletelist", withErrorHandling(deleteListCommandHandler))
-bot.command("delList", withErrorHandling(deleteListCommandHandler))
-bot.command("dellist", withErrorHandling(deleteListCommandHandler))
 
 bot.command("help", withErrorHandling(helpCommandHandler))
 
