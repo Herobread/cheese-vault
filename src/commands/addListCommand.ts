@@ -1,5 +1,6 @@
 import { updatePinnedMessageContent } from "@/commands/listCommand"
 import { parseCommand } from "@/commands/parser"
+import { getRandomPositiveReactionEmoji } from "@/commands/reaction"
 import { db } from "@/db/connection"
 import { shoppingLists } from "@/db/schema"
 import { and, eq } from "drizzle-orm"
@@ -39,9 +40,7 @@ export async function addListCommandHandler(
         .limit(1)
 
     if (existingList.length > 0) {
-        await ctx.reply(`No\\, list \`${list_name}\` already exists\\.`, {
-            parse_mode: "MarkdownV2",
-        })
+        await ctx.react("🤨")
         return
     }
 
@@ -51,6 +50,5 @@ export async function addListCommandHandler(
     })
 
     await updatePinnedMessageContent(ctx, db, chat_id)
-
-    await ctx.sendMessage(`✅ Added list ${list_name}`)
+    await ctx.react(getRandomPositiveReactionEmoji())
 }

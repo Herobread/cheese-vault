@@ -1,6 +1,7 @@
 import { getChatData } from "@/commands/getChatData"
 import { updatePinnedMessageContent } from "@/commands/listCommand"
 import { parseCommand } from "@/commands/parser"
+import { getRandomPositiveReactionEmoji } from "@/commands/reaction"
 import { db } from "@/db/connection"
 import {
     chatDatas,
@@ -159,15 +160,12 @@ export async function addItemCommandHandler(
     const items = await handleAddItemCommand(db, ctx.message.text, chat_id)
 
     if (items.length === 0) {
-        ctx.sendMessage("❌ Nothing to add.")
+        await ctx.react("🤨")
         return
     }
 
-    ctx.sendMessage(
-        `✅ Added ${items.map((item) => item.item_name).join(", ")}`
-    )
-
-    await updatePinnedMessageContent(ctx, db, chat_id)
+    ctx.react(getRandomPositiveReactionEmoji())
+    updatePinnedMessageContent(ctx, db, chat_id)
 }
 
 type SimpleShoppingItem = {

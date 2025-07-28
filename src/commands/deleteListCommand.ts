@@ -1,8 +1,10 @@
 import { getListIdByName } from "@/commands/getListByName"
 import { updatePinnedMessageContent } from "@/commands/listCommand"
 import { parseCommand } from "@/commands/parser"
+import { getRandomPositiveReactionEmoji } from "@/commands/reaction"
 import { db } from "@/db/connection"
 import { shoppingItems, shoppingLists } from "@/db/schema"
+import { logger } from "@/logger"
 import { eq } from "drizzle-orm"
 import { LibSQLDatabase } from "drizzle-orm/libsql"
 import { Context } from "telegraf"
@@ -24,7 +26,7 @@ export async function deleteListCommandHandler(
     const { args } = parseCommand(ctx.message.text)
 
     if (!args[0]) {
-        ctx.sendMessage("Pease give list name")
+        ctx.react("🤨")
         return
     }
 
@@ -37,12 +39,11 @@ export async function deleteListCommandHandler(
     }
 
     try {
-        deleteListById(db, list_id)
-        ctx.sendMessage(`🗑 Deleted list ${list_name}`)
+        await deleteListById(db, list_id)
+        ctx.react(getRandomPositiveReactionEmoji())
     } catch (error) {
-        ctx.sendMessage(`❌ Error deleting list ${list_name}\n\n\`${error}\``, {
-            parse_mode: "MarkdownV2",
-        })
+        ctx.react("🤨")
+        logger.error(error)
     }
 
     await updatePinnedMessageContent(ctx, db, chat_id)
