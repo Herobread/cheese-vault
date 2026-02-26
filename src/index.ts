@@ -101,6 +101,7 @@ bot.on(message("text"), async (ctx, next) => {
 // delete items or lists
 bot.command("delete", withErrorHandling(deleteCommandHandler))
 bot.command("del", withErrorHandling(deleteCommandHandler))
+bot.command("remove", withErrorHandling(deleteCommandHandler))
 
 // rename
 bot.command("rename", withErrorHandling(renameItemCommandHandler))
@@ -108,6 +109,7 @@ bot.command("replace", withErrorHandling(renameItemCommandHandler))
 bot.command("re", withErrorHandling(renameItemCommandHandler))
 
 bot.command("reset", withErrorHandling(resetCommandHandler))
+bot.command("clear", withErrorHandling(resetCommandHandler))
 
 bot.action("reset_confirm", async (ctx) => {
     if (!ctx.chat) {
